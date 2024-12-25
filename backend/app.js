@@ -17,7 +17,7 @@ connectDB();
 // Enable CORS
 app.use(cors({
   origin: process.env.FRONTEND_URL, // Allow requests from this origin
-  credentials: true, // enable cookies
+  credentials: false, // enable cookies
 }));
 
 // Middleware
