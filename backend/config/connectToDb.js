@@ -6,7 +6,7 @@ const DefectType = require("../models/DefectType");
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, { //MONGO_CLOUD_URI | MONGO_URI
+    await mongoose.connect(process.env.MONGO_CLOUD_URI, { //MONGO_CLOUD_URI | MONGO_URI
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
