@@ -1,11 +1,11 @@
 // app.js
 const express = require("express");
 const cors = require("cors");
-const reportRoutes = require("./routes/reportRoutes");
-const orderRoutes = require("./routes/orderRoutes");
-const sectionRoutes = require("./routes/sectionRoutes");
-const washRoutes = require("./routes/washRoutes");
-const connectDB = require("./config/connectToDb");
+const reportRoutes = require("../routes/reportRoutes");
+const orderRoutes = require("../routes/orderRoutes");
+const sectionRoutes = require("../routes/sectionRoutes");
+const washRoutes = require("../routes/washRoutes");
+const connectDB = require("../config/connectToDb");
  dotenv = require("dotenv");
 
 dotenv.config();
@@ -20,7 +20,7 @@ app.use(express.json());
 connectDB();
 
 // Routes
-app.use("/api/defects", require("./routes/defectRoutes"));
+app.use("/api/defects", require("../routes/defectRoutes"));
 
 app.use("/uploads", express.static("uploads"));
 
