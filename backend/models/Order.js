@@ -17,8 +17,10 @@ const OrderSchema = new mongoose.Schema({
     currentStage: { type: String, default: "Fabric Reservation" },
     stageProgress: { type: Number, default: 0 },
     defects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Defect" }],
+    washRecipes: [{ type: mongoose.Schema.Types.ObjectId, ref: "WashRecipe" }],
   },{ timestamps: true }); // Adds createdAt and updatedAt fields
 
+  /*
   // Middleware to handle cascade delete on Order removal
 OrderSchema.pre("remove", async function (next) {
   try {
@@ -29,6 +31,7 @@ OrderSchema.pre("remove", async function (next) {
     next(error);
   }
 });
+*/
 
   module.exports = mongoose.model("Order", OrderSchema);
   
