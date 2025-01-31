@@ -8,6 +8,10 @@ const reportRoutes = require("./routes/reportRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const sectionRoutes = require("./routes/sectionRoutes");
 const washRoutes = require("./routes/washRoutes");
+const laundryStepRoutes = require("./routes/laundryStepRoutes");
+const laundryProcessRoutes = require("./routes/laundryProcessRoutes");
+const chemicalItemRoutes = require("./routes/chemicalItemRoutes");
+const stepItemRoutes = require("./routes/stepItemRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -28,7 +32,13 @@ app.use("/api/defects", defectRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/sections", sectionRoutes);
-app.use("/api/wash", washRoutes);
+app.use("/api/wash-recipes", washRoutes);
+// Laundry Step Routes
+app.use("/api/laundry-steps", laundryStepRoutes);
+app.use("/api/laundry-processes", laundryProcessRoutes);
+app.use("/api/chemical-items", chemicalItemRoutes);
+app.use("/api/step-items", stepItemRoutes);
+app.use("/api/master-data", require("./routes/masterDataRoutes"));
 
 // Serve static files (e.g., uploads)
 app.use("/uploads", express.static("uploads"));

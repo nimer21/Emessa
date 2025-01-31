@@ -6,6 +6,8 @@ import { BsKanban, BsBarChart, BsBoxSeam, BsCurrencyDollar, BsShield, BsChatLeft
 import { BiColorFill } from 'react-icons/bi';
 import { IoMdContacts } from 'react-icons/io';
 import { RiContactsLine, RiStockLine } from 'react-icons/ri';
+import { GiWashingMachine } from "react-icons/gi";
+import { CgSmartHomeWashMachine } from "react-icons/cg";
 import { MdOutlineSupervisorAccount } from 'react-icons/md';
 import { HiOutlineRefresh } from 'react-icons/hi';
 import { TiTick } from 'react-icons/ti';
@@ -493,12 +495,12 @@ export const links = [
         icon: <TbFaceIdError />,
       },
       {
-        name: 'employees',
-        icon: <IoMdContacts />,
+        name: 'washing',
+        icon: <CgSmartHomeWashMachine />,
       },
       {
-        name: 'customers',
-        icon: <RiContactsLine />,
+        name: 'employees',
+        icon: <IoMdContacts />,
       },
     ],
   },

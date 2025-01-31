@@ -1,7 +1,6 @@
 // src/pages/DefectDetail.js
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "../services/api";
 import DefectStatus from "../components/DefectStatus";
 import DefectResolution from "../components/DefectResolution";
 import { format } from "date-fns";

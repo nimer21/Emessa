@@ -16,7 +16,9 @@ import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import OrderList from "./pages/OrderList";
 import OrderDetails from "./components/OrderDetails";
-
+import WashRecipeForm from "./components/WashRecipeForm";
+import WashRecipeDetails from "./pages/WashRecipeDetails";
+import WashRecipeList from "./pages/WashRecipeList";
 
 function App() {
   const { activeMenu, themeSettings, setThemeSettings, currentColor, currentMode } = useStateContext();
@@ -74,7 +76,10 @@ function App() {
                     <Route path='/orders' element={<OrderList />}/>
                     <Route path="/orders/:orderId" element={<OrderDetails />} /> 
                     <Route path='/employees' element={<Employees />}/>   
-                    <Route path='/customers' element={<Customers />}/>             
+                    {/* <Route path='/customers' element={<Customers />}/>              */}
+                    <Route path='/wash-recipes' element={<WashRecipeForm />}/>
+                    <Route path="/washing" element={<WashRecipeList />} />
+                    <Route path="/wash-recipes/:id" element={<WashRecipeDetails />} />      
                 </Routes>
             </div>
             </div>
