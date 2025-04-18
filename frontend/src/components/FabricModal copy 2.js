@@ -5,11 +5,11 @@ import {
   createFabric,
   updateFabric,
 } from "../services/masterDataService";
+import { Progress } from "../components/ui/progress";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Progress } from "../components/ui/progress";
 import { toast } from "react-toastify";
-import { FiX, FiTrash2, FiAlertCircle, FiPlus, FiSave } from "react-icons/fi";
+import { FiX, FiTrash2 } from "react-icons/fi";
 
 const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
   const [formData, setFormData] = useState({
@@ -19,7 +19,6 @@ const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
     supplier: "",
     compositions: [],
   });
-
   const [suppliers, setSuppliers] = useState([]);
   const [compositionItems, setCompositionItems] = useState([]);
   const [selectedComposition, setSelectedComposition] = useState("");
@@ -62,17 +61,7 @@ const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
         "Please select a composition and enter a valid percentage."
       );
     }
-
-    // Check if the composition already exists
-    const isDuplicate = formData.compositions.some(
-        (comp) => comp.compositionCode === selectedComposition
-      );
-      if (isDuplicate) {
-        return toast.error("This composition is already added.");
-      }
-
     const newTotal = totalPercentage + parseInt(percentage);
-
     if (newTotal > 100) {
       setWarning("Total composition cannot exceed 100%.");
       return;
@@ -94,7 +83,6 @@ const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
         ],
       }));
     }
-
     // Clear inputs
     setSelectedComposition("");
     setPercentage("");
@@ -103,27 +91,27 @@ const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
 
   // Remove a composition from the grid
   const removeComposition = (index) => {
-    const updatedComps = [...formData.compositions];
-    updatedComps.splice(index, 1);
-    setFormData({ ...formData, compositions: updatedComps });
+    const updatedCompositions = [...formData.compositions];
+    updatedCompositions.splice(index, 1);
+    setFormData({ ...formData, compositions: updatedCompositions });
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (totalPercentage !== 100)
       return toast.error("Total composition must be exactly 100%.");
-
+    //await createFabric(formData);
+    //closeModal();
     try {
       let updatedFabric;
 
       if (editFabric) {
         updatedFabric = await updateFabric(editFabric._id, formData);
-        //toast.success("Fabric updated successfully");
+        toast.success("Fabric updated successfully");
       } else {
         updatedFabric = await createFabric(formData);
-        //toast.success("Fabric created successfully");
+        toast.success("Fabric created successfully");
       }
 
       refreshFabricList(updatedFabric.fabric);
@@ -160,60 +148,57 @@ const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <input
+                className="w-full p-2 mb-2 border rounded input-field"
+                required
                 type="text"
                 name="name"
+                placeholder="Fabric Name"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="Fabric Name"
-                className="input-field"
-                required
               />
               <input
+                className="w-full p-2 mb-2 border rounded input-field"
+                required
                 type="text"
                 name="code"
+                placeholder="Fabric Code"
                 value={formData.code}
                 onChange={(e) =>
                   setFormData({ ...formData, code: e.target.value })
                 }
-                placeholder="Fabric Code"
-                className="input-field"
-                required
               />
               <input
+                className="w-full p-2 mb-2 border rounded input-field"
+                required
                 type="text"
                 name="color"
+                placeholder="Color"
                 value={formData.color}
                 onChange={(e) =>
                   setFormData({ ...formData, color: e.target.value })
                 }
-                placeholder="Color"
-                className="input-field"
-                required
               />
-              <select
-                name="supplier"
+
+              <select name="supplier"
+                className="w-full p-2 mb-2 border rounded"
                 value={formData.supplier}
                 onChange={(e) =>
                   setFormData({ ...formData, supplier: e.target.value })
                 }
-                className="select-field"
-                required
               >
-                <option value="" disabled>
-                  Select a Supplier
-                </option>
-                {suppliers.map((supplier) => (
-                  <option key={supplier._id} value={supplier._id}>
-                    {supplier.name}
+                <option value="" disabled>Select Supplier</option>
+                {suppliers.map((sup) => (
+                  <option key={sup._id} value={sup._id}>
+                    {sup.name}
                   </option>
                 ))}
               </select>
             </div>
           </div>
 
-          {/* 🔹 Composition Section */}
+          {/* Composition Section */}
           <div className="bg-gray-50 p-4 rounded-lg shadow-md">
             <h3 className="text-md font-semibold text-gray-700 mb-3">
               Fabric Composition
@@ -222,7 +207,7 @@ const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
               <select
                 value={selectedComposition}
                 onChange={(e) => setSelectedComposition(e.target.value)}
-                className="select-field"
+                className="p-2 border rounded flex-1 select-field"
               >
                 <option value="">Select Composition</option>
                 {compositionItems.map((comp) => (
@@ -233,28 +218,26 @@ const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
               </select>
               <input
                 type="number"
-                className="input-field w-24"
+                min="0"
+                step="1"
+                className="p-2 border rounded input-field w-24"
                 value={percentage}
                 onChange={(e) => setPercentage(e.target.value)}
                 placeholder="%"
-                min="0"
-                max="100"
-                step="1"
               />
-              <button
-                type="button" // Prevent form submission
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded flex items-center gap-2"
+              <Button
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
                 onClick={addComposition}
               >
-                <FiPlus /> Add
-              </button>
+                Add
+              </Button>
             </div>
-            {warning && <p className="text-red-500 text-sm mt-2 flex items-center gap-2"><FiAlertCircle /> {warning}</p>}
+            {warning && <p className="text-red-500 text-sm mt-2">{warning}</p>}
 
             {/* Composition Grid */}
             <div className="border rounded-lg p-3 bg-gray-50 mt-3">
               <table className="w-full text-sm">
-              <thead>
+                <thead>
                   <tr className="bg-gray-200 text-gray-700">
                     <th className="p-2 text-left">Composition</th>
                     <th className="p-2 text-left">%</th>
@@ -267,10 +250,12 @@ const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
                       <td className="p-2">{comp.compositionName}</td>
                       <td className="p-2">{comp.value}%</td>
                       <td className="p-2">
-                        <FiTrash2
-                          className="text-red-500 cursor-pointer"
+                        <Button
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                           onClick={() => removeComposition(index)}
-                        />
+                        >
+                          ✖
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -278,25 +263,29 @@ const FabricModal = ({ closeModal, editFabric, refreshFabricList }) => {
               </table>
             </div>
 
-            <Progress value={totalPercentage} className="my-3" />
-            <p className="text-sm text-gray-600">Total: {totalPercentage}%</p>
+            {/* Progress Bar */}
+            <div className="my-4">
+              <Progress value={totalPercentage} className="my-3" />
+              <p className="text-sm text-gray-600 mt-1">
+                Total Composition: {totalPercentage}%
+              </p>
+            </div>
           </div>
+
           {/* Footer Buttons - Fixed UI Issue */}
           <div className="mt-4 flex justify-between items-center border-t pt-4">
             <Button
-            type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded flex items-center gap-2"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded"
               disabled={totalPercentage !== 100}
               onClick={handleSubmit}
             >
-              <FiSave /> {editFabric ? "Update Fabric" : "Save Fabric"}
+              Save
             </Button>
             <Button
-              type="button"
-              className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded flex items-center gap-2"
+              className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded"
               onClick={closeModal}
             >
-              <FiX /> Cancel
+              Cancel
             </Button>
           </div>
         </form>

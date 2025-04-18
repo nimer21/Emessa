@@ -197,7 +197,7 @@ const WashRecipeForm = () => {
         <option value="">Choose an Order</option>
         {orders?.map((order) => (
           <option key={order._id} value={order._id}>
-            {order.orderNo} - {order.style} - {order.season}
+            {order.orderNo} - {order.style?.styleNo} - {order.season}
           </option>
         ))}
       </select>
@@ -273,8 +273,8 @@ const WashRecipeForm = () => {
         <tbody>
           <tr>
             <td className="p-2 border text-center">{orderDetails.orderNo}</td>
-            <td className="p-2 border text-center">{orderDetails.style}</td>
-            <td className="p-2 border text-center">{orderDetails.fabricArt}</td>
+            <td className="p-2 border text-center">{orderDetails.style?.name}</td>
+            <td className="p-2 border text-center">{orderDetails.articleNo}</td>
             <td className="p-2 border text-center">{orderDetails.keyNo}</td>
             <td className="p-2 border text-center">
               {new Date(orderDetails.orderDate).toLocaleDateString() || "N/A"}

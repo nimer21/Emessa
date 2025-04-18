@@ -8,6 +8,8 @@ import { IoMdContacts } from 'react-icons/io';
 import { RiContactsLine, RiStockLine } from 'react-icons/ri';
 import { GiWashingMachine } from "react-icons/gi";
 import { CgSmartHomeWashMachine } from "react-icons/cg";
+import { GiRolledCloth } from "react-icons/gi";
+import { SiStylelint } from "react-icons/si";
 import { MdOutlineSupervisorAccount } from 'react-icons/md';
 import { HiOutlineRefresh } from 'react-icons/hi';
 import { TiTick } from 'react-icons/ti';
@@ -489,6 +491,14 @@ export const links = [
       {
         name: 'orders',
         icon: <AiOutlineShoppingCart />,
+      },
+      {
+        name: 'fabriclist',
+        icon: <GiRolledCloth />,
+      },
+      {
+        name: 'stylelist',
+        icon: <SiStylelint />,
       },
       {
         name: 'defectslist',

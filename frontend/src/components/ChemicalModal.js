@@ -120,6 +120,8 @@ const ChemicalModal = ({ isOpen, onClose, step, onChemicalAdded }) => {
             onChange={(e) => setQuantity(e.target.value)}
             className="w-full border p-2 rounded"
             placeholder="Enter quantity"
+            min="0"
+            step="1"
             required
           />
         </div>

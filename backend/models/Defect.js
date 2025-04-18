@@ -4,8 +4,11 @@ const Order = require("./Order");
 const DefectSchema = new mongoose.Schema({
   //defectSection: { type: String, required: true }, // Section (e.g., Cutting, Sewing)
   //defectProcess: { type: String, required: true }, // Process (e.g., Stitching, Hemming)
-  defectType: { type: String, required: true },
-  description: { type: String, required: true },
+  // defectName: { type: String, required: true },
+  // defectType: { type: String, required: true },
+  defectName:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectName" },
+  defectType:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectType" },
+  description: { type: String },
   severity: { type: String, enum: ["Low", "Medium", "High"], required: true },
   status: { type: String, enum: ["Open", "In Progress", "Resolved"], default: "Open" },
   detectedDate: { type: Date, default: Date.now },
@@ -18,12 +21,8 @@ const DefectSchema = new mongoose.Schema({
     resolutionDate: { type: Date }
   },
   month: { type: String, enum: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], required: true },
-  styleName: { type: String }, // New field
-  fabricArticle: { type: String }, // New field
   productionLine: { type: String }, // New field7
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order" }, // Reference to the order
-  defectSection: { type: mongoose.Schema.Types.ObjectId, ref: "Section", required: true },
-  defectProcess: { type: mongoose.Schema.Types.ObjectId, ref: "Process", required: true },
 }, { timestamps: true }); // Adds createdAt and updatedAt fields
 
 // Middleware to handle cascade update on delete

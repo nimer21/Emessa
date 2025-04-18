@@ -1,4 +1,5 @@
 //import axios from "axios";
+import { toast } from "react-toastify";
 import axios from "./api";
 
 
@@ -36,4 +37,10 @@ export const getWashRecipeById = async (washRecipsId) => {
     console.error("Error fetching wash recipe details:", error);
     throw error;
   }
+};
+
+export const deleteWashRecipe = async (id) => {
+  const res = await axios.delete(`${API_URL}/${id}`);
+  toast.success(res.data.message);
+  return res.data;
 };

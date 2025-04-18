@@ -43,7 +43,7 @@ exports.createOrUpdateOrder = async (req, res) => {
     } else {
       // **Create new order**
       order = new Order({ orderNo: normalizedOrderNo, ...otherFields });
-      order.barcode7 = generateBarcode7();
+      //order.barcode7 = generateBarcode7();
       await order.save();
     }
 
@@ -53,7 +53,15 @@ exports.createOrUpdateOrder = async (req, res) => {
   .populate("customer", "name")
   .populate("fabricSupplier", "name")
   .populate("style", "name styleNo")
-  .populate("fabric", "name color");
+  .populate("fabric", "name color")
+  .populate("brand", "name")
+  .populate({
+    path: "fabric",
+    populate: {
+      path: "fabricCompositions",
+      populate: { path: "compositionItem", select: "name abbrPrefix" }
+    }
+  });
   
   populatedOrder.stageProgress = calculateProgress(populatedOrder.currentStage);
   res.status(200).json({ message: "Order Created/Updated Successfully", populatedOrder });
@@ -97,12 +105,21 @@ exports.getAllOrders = async (req, res) => {
       .populate("fabricSupplier", "name")
       .populate("style", "name styleNo")
       .populate("fabric", "name color")
+      .populate("brand", "name")
+      .populate({
+        path: "fabric",
+        populate: {
+          path: "fabricCompositions",
+          populate: { path: "compositionItem", select: "name abbrPrefix" }
+        }
+      })
       .sort({ [sortField]: sortOrder === "asc" ? 1 : -1 })
       //.sort({ createdAt: -1 }) // Sort by createdAt in descending order (most recent first)
       .skip(parseInt(skip))
       .limit(parseInt(limit));
 
     const total = await Order.countDocuments(filter);
+    //console.log("Fetched Orders: ", orders);
 
     res.status(200).json({
       data: orders,
@@ -181,10 +198,10 @@ exports.addDefectToOrder = async (req, res) => {
 // ✅ **Get Defects for an Order**
 exports.getDefectsForOrder = async (req, res) => {
   try {
-    const defects = await Defect.find({ orderId: req.params.orderId });
+    const defects = await Defect.find({ orderId: req.params.orderId }).populate("defectType", "name");;
     res.status(200).json(defects);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching defects", error });
+    res.status(500).json({ message: "Error fetching defects for order", error });
   }
 };
 //********************************************************************************************************************************* */
@@ -389,15 +406,5 @@ exports.deleteOrder = async (req, res) => {
       res.status(201).json(savedDefect);
     } catch (error) {
       res.status(500).json({ message: "Error adding defect to order", error });
-    }
-  };
-
-  // Get defects for an order
-  exports.getDefectsForOrder = async (req, res) => {
-    try {
-      const defects = await Defect.find({ orderId: req.params.orderId });
-      res.status(200).json(defects);
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching defects for order", error });
     }
   };

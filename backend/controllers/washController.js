@@ -233,7 +233,14 @@ exports.getAllWashRecipes = async (req, res) => {
   try {
     // Fetch all wash recipes with populated related data
     const washRecipes = await WashRecipe.find()
-      .populate("orderId", "orderNo season style fabricArt fabricSupplier keyNo qty date") // Populate order details
+    .populate({
+      path: "orderId",
+      select: "orderNo season style fabric fabricSupplier keyNo orderQty orderDate articleNo",
+      populate: {
+        path: "style",
+        select: "name styleNo", // ✅ Select desired style fields
+      }
+    }) // Populate order details
       .populate({
         path: "recipeProcessId", // Populate processes
         populate: {
@@ -292,8 +299,15 @@ exports.getWashRecipeDetailsById = async (req, res) => {
     const { id } = req.params;
 
     // Fetch the main wash recipe
-    const washRecipe = await WashRecipe.findById(id)
-      .populate("orderId", "orderNo season style fabricArt fabricSupplier keyNo qty orderDate") // Populate order details
+    const washRecipe = await WashRecipe.findById(id)    
+    .populate({
+      path: "orderId",
+      select: "orderNo season style fabric fabricSupplier keyNo orderQty orderDate articleNo",
+      populate: {
+        path: "style",
+        select: "name styleNo", // ✅ Select desired style fields
+      }
+    }) // Populate order details
       .exec();
 
     if (!washRecipe) {
@@ -341,4 +355,42 @@ exports.getWashRecipeDetailsById = async (req, res) => {
     res.status(500).json({ message: "Error fetching wash recipe details.", error });
   }
 };
+
+// controllers/washRecipeController.js
+
+exports.deleteWashRecipe  = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const washRecipe = await WashRecipe.findById(id);
+    if (!washRecipe) {
+      return res.status(404).json({ message: "Wash recipe not found." });
+    }
+
+    // 1. Delete all step items (chemicals) linked to steps
+    const recipeItemIds = washRecipe.steps || [];
+    const recipeProcessIds = washRecipe.recipeProcessId || [];
+
+    const stepItems = await StepItem.find({ recipeItemId: { $in: recipeItemIds } });
+    const stepItemIds = stepItems.map(item => item._id);
+
+    // Delete chemicals
+    await StepItem.deleteMany({ _id: { $in: stepItemIds } });
+
+    // Delete steps
+    await RecipeItem.deleteMany({ _id: { $in: recipeItemIds } });
+
+    // Delete processes
+    await RecipeProcess.deleteMany({ _id: { $in: recipeProcessIds } });
+
+    // 2. Delete the wash recipe
+    await WashRecipe.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Wash recipe and related data deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting wash recipe:", error);
+    res.status(500).json({ message: "Error deleting wash recipe." });
+  }
+};
+
 

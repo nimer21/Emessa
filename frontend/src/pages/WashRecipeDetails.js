@@ -133,7 +133,7 @@ const WashRecipeDetails = () => {
       style: { stroke: "#FF5C8E" },
     },
   ];
-  
+  console.log(washRecipe);
 
   if (!washRecipe) {
     return (
@@ -199,8 +199,8 @@ const WashRecipeDetails = () => {
       </thead>
       <tbody>
           <td className="p-2 border text-center">{washRecipe.orderId.orderNo}</td>
-          <td className="p-2 border text-center">{washRecipe.orderId.style}</td>
-          <td className="p-2 border text-center">{washRecipe.orderId.fabricArt}</td>
+          <td className="p-2 border text-center">{washRecipe.orderId?.style?.name || "N/A"}</td>
+          <td className="p-2 border text-center">{washRecipe.orderId?.articleNo || "N/A"}</td>
           {/* <td className="py-2 px-4">{washRecipe.orderId.fabricSupplier}</td> */}
           <td className="p-2 border text-center">{washRecipe.orderId.keyNo}</td>
           {/* <td className="py-2 px-4">{washRecipe.orderId.qty}</td> */}

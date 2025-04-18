@@ -29,7 +29,7 @@ const OrderList = () => {
   const [orders, setOrders] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 10,
+    limit: 6,
     totalPages: 1,
   });
   const [sort, setSort] = useState({ field: "orderDate", order: "desc" });
@@ -47,20 +47,22 @@ const OrderList = () => {
   const [isCearteFabricModalOpen, setIsCearteFabricModalOpen] = useState(false);
   const [isCreateStyleModalOpen, setIsCreateStyleModalOpen] = useState(false);
 
+  const [editStyle, setEditStyle] = useState(null);
+
   const navigate = useNavigate();
 
   // Load styles on component mount
   useEffect(() => {
-    const loadStyles = async () => {
-      try {
-        const styleData = await fetchStyles();
-        setStyles(styleData);
-      } catch (error) {
-        console.error("Failed to load styles");
-      }
-    };
     loadStyles();
   }, []);
+  const loadStyles = async () => {
+    try {
+      const styleData = await fetchStyles();
+      setStyles(styleData);
+    } catch (error) {
+      console.error("Failed to load styles");
+    }
+  };
 
   const handleOrderCreated = (newOrder) => {
     setOrders([...orders, newOrder]);
@@ -82,6 +84,7 @@ const OrderList = () => {
 
   // Function to update the defect in the list after editing
   const updateOrderInList = async (updatedOrder) => {
+    console.log("Updating order: ", updatedOrder);
     if (!updatedOrder || !updatedOrder._id) {
       console.error("Invalid updated order:", updatedOrder);
       toast.error("Invalid updated order");
@@ -232,7 +235,7 @@ const OrderList = () => {
         </button>
 
         {/* Overall Progress */}
-        <div className="flex items-center gap-2 flex-shrink-0 p-4 bg-white shadow rounded-lg mb-2">
+        {/* <div className="flex items-center gap-2 flex-shrink-0 p-4 bg-white shadow rounded-lg mb-2">
           <span className="text-sm font-semibold text-gray-600">
             Overall Progress:
           </span>
@@ -240,19 +243,12 @@ const OrderList = () => {
             progress={calculateOverallProgress()}
             currentStage="Overall"
           />
-        </div>
+        </div> */}
       </div>
       {/* Order Table */} {/* Order List Section */}
       <table className="table-auto w-full bg-white shadow-md rounded border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
-            <th
-              onClick={() => handleSort("keyNo")}
-              className="cursor-pointer border p-2"
-            >
-              Key No{" "}
-              {sort.field === "keyNo" && (sort.order === "asc" ? "↑" : "↓")}
-            </th>
             <th
               onClick={() => handleSort("orderNo")}
               className="cursor-pointer border p-2"
@@ -268,41 +264,11 @@ const OrderList = () => {
               {sort.field === "customer" && (sort.order === "asc" ? "↑" : "↓")}
             </th>
             <th
-              onClick={() => handleSort("orderQty")}
+              onClick={() => handleSort("brand")}
               className="cursor-pointer border p-2"
             >
-              O-Qty{" "}
-              {sort.field === "orderQty" && (sort.order === "asc" ? "↑" : "↓")}
-            </th>
-            <th
-              onClick={() => handleSort("deliveredQty")}
-              className="cursor-pointer border p-2"
-            >
-              D-Qty{" "}
-              {sort.field === "deliveredQty" &&
-                (sort.order === "asc" ? "↑" : "↓")}
-            </th>
-            <th
-              onClick={() => handleSort("fabric")}
-              className="cursor-pointer border p-2"
-            >
-              Fabric{" "}
-              {sort.field === "fabric" && (sort.order === "asc" ? "↑" : "↓")}
-            </th>
-            <th
-              onClick={() => handleSort("fabricSupplier")}
-              className="cursor-pointer border p-2"
-            >
-              Fabric Supplier{" "}
-              {sort.field === "fabricSupplier" &&
-                (sort.order === "asc" ? "↑" : "↓")}
-            </th>
-            <th
-              onClick={() => handleSort("articleNo")}
-              className="cursor-pointer border p-2"
-            >
-              Article#{" "}
-              {sort.field === "articleNo" && (sort.order === "asc" ? "↑" : "↓")}
+              Brand{" "}
+              {sort.field === "brand" && (sort.order === "asc" ? "↑" : "↓")}
             </th>
             <th onClick={() => handleSort("style")} className="cursor-pointer">
               Style{" "}
@@ -316,6 +282,41 @@ const OrderList = () => {
               {sort.field === "StyleNo" && (sort.order === "asc" ? "↑" : "↓")}
             </th>
             <th
+              onClick={() => handleSort("keyNo")}
+              className="cursor-pointer border p-2"
+            >
+              Key No{" "}
+              {sort.field === "keyNo" && (sort.order === "asc" ? "↑" : "↓")}
+            </th>
+            <th
+              onClick={() => handleSort("season")}
+              className="cursor-pointer border p-2"
+            >
+              Season{" "}
+              {sort.field === "season" && (sort.order === "asc" ? "↑" : "↓")}
+            </th>
+            <th
+              onClick={() => handleSort("articleNo")}
+              className="cursor-pointer border p-2"
+            >
+              Article#{" "}
+              {sort.field === "articleNo" && (sort.order === "asc" ? "↑" : "↓")}
+            </th>
+            <th
+              onClick={() => handleSort("fabric")}
+              className="cursor-pointer border p-2"
+            >
+              Fabric{" "}
+              {sort.field === "fabric" && (sort.order === "asc" ? "↑" : "↓")}
+            </th>
+            <th
+              onClick={() => handleSort("fabricComposition")}
+              className="cursor-pointer border p-2"
+            >
+              Fabric Composition{" "}
+              {sort.field === "fabricComposition" && (sort.order === "asc" ? "↑" : "↓")}
+            </th>
+            <th
               onClick={() => handleSort("orderDate")}
               className="cursor-pointer"
             >
@@ -323,13 +324,36 @@ const OrderList = () => {
               {sort.field === "orderDate" && (sort.order === "asc" ? "↑" : "↓")}
             </th>
             <th
+              onClick={() => handleSort("orderQty")}
+              className="cursor-pointer border p-2"
+            >
+              O-Qty{" "}
+              {sort.field === "orderQty" && (sort.order === "asc" ? "↑" : "↓")}
+            </th>
+            <th
+              onClick={() => handleSort("fabricCode")}
+              className="cursor-pointer border p-2"
+            >
+              Fabric Code{" "}
+              {sort.field === "fabricCode" &&
+                (sort.order === "asc" ? "↑" : "↓")}
+            </th>
+            <th
+              onClick={() => handleSort("fabricSupplier")}
+              className="cursor-pointer border p-2"
+            >
+              Fabric Supplier{" "}
+              {sort.field === "fabricSupplier" &&
+                (sort.order === "asc" ? "↑" : "↓")}
+            </th>
+            {/* <th
               onClick={() => handleSort("currentStage")}
               className="cursor-pointer"
             >
               Progress{" "}
               {sort.field === "currentStage" &&
                 (sort.order === "asc" ? "↑" : "↓")}
-            </th>
+            </th> */}
             <th>Actions</th>{/* New Actions Column */}
           </tr>
         </thead>
@@ -339,29 +363,38 @@ const OrderList = () => {
               key={order._id}
               className="hover:bg-gray-100 transition duration-150 ease-in-out"
             >
-              <td className="border p-2">{order.keyNo}</td>
               <td className="border p-2">{order.orderNo}</td>
               <td className="border p-2">{order.customer?.name}</td>
-              <td className="border p-2">{order.orderQty}</td>
-              <td className="border p-2">{order.deliveredQty}</td>
-              <td className="border p-2">{order.fabric?.name}</td>
-              <td className="border p-2">{order.fabricSupplier?.name}</td>
-              <td className="border p-2">{order.articleNo}</td>
+              <td className="border p-2">{order.brand?.name || "No Brand"}</td>
               <td className="border p-2">{order.style?.name}</td>
-              <td className="border p-2">{order.style?.styleNo}</td>
+              <td className="border p-2">{order.styleNo}</td>
+              <td className="border p-2">{order.keyNo}</td>
+              <td className="border p-2">{order.season}</td>
+              <td className="border p-2">{order.articleNo}</td>
+              <td className="border p-2">{order.fabric?.name}</td>
+              <td className="border p-2">
+              {order.fabric?.fabricCompositions?.length > 0
+              ? order.fabric.fabricCompositions
+              .map((fc) => `${fc.compositionItem?.abbrPrefix || "Unknown"}${fc.value}`)
+              .join(", ")
+              : "No Composition"}
+              </td>
               <td className="border p-2">
                 {order?.orderDate
                   ? new Date(order.orderDate).toLocaleDateString()
                   : "No date selected"}
               </td>
+              <td className="border p-2">{order.orderQty}</td>
+              <td className="border p-2">{order.fabric?.code}</td>
+              <td className="border p-2">{order.fabricSupplier?.name}</td>
               {/* Progress Bar */}
               {/* Place ProgressBar inside a td */}
-              <td className="border p-2">
+              {/* <td className="border p-2">
                 <ProgressBar
                   progress={order.stageProgress}
                   currentStage={order.currentStage}
                 />
-              </td>
+              </td> */}
               {/* Actions */}
               <td className="border p-2 hidden">
                 {/* Delete Button */}
@@ -524,7 +557,8 @@ const OrderList = () => {
 
       {/* Create Fabric Modal */}
       {isCreateStyleModalOpen && (
-        <StyleModal closeModal={closeModal} isOpen={isCreateStyleModalOpen}/>
+        <StyleModal closeModal={closeModal} isOpen={isCreateStyleModalOpen} editStyle={editStyle}
+        refreshStyleList={loadStyles}/>
         // <FabricCompositionForm />
       )}
     </div>

@@ -2,22 +2,23 @@ const mongoose = require("mongoose");
 
 const OrderSchema = new mongoose.Schema({
     orderNo: { type: String, required: true, unique: true }, // Unique Order Number
-    emessaOrderNo: String, // Internal Order Number
+    //emessaOrderNo: String, // Internal Order Number
     keyNo: String, // Key Number
     season: String, // Season
     orderQty: { type: Number, required: true, min: 1 }, // Quantity
     orderDate: { type: Date, required: true }, // Order Date
-    deliveryDate: Date, // Expected Delivery Date
+    //deliveryDate: Date, // Expected Delivery Date
     deliveredQty: Number, // Delivered Quantity
     
+    brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" }, // Brand (one-to-many) | Linked Brand
     style: { type: mongoose.Schema.Types.ObjectId, ref: "Style" }, // Style (one-to-many) | Linked Style
     customer: { type: mongoose.Schema.Types.ObjectId, ref: "CustomAccount" }, // Customer (one-to-many) | Linked Customer
     fabricSupplier: { type: mongoose.Schema.Types.ObjectId, ref: "CustomAccount" }, // fabricSupplier (one-to-many) | Linked Fabric Supplier
     fabric: { type: mongoose.Schema.Types.ObjectId, ref: "Fabric" }, // Fabric (one-to-many) | Linked Fabric
-    //styleNo: String, // Style Number
+    styleNo: String, // Style Number
     articleNo: String, // Style Number
     
-    barcode7: String, // Barcode
+    //barcode7: String, // Barcode
 
     // Workflow Tracking
     currentStage: { type: String, default: "Fabric Reservation" },

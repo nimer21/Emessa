@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import axios from "../services/api";
 
 const API_URL = "/api/defects";
@@ -15,7 +16,7 @@ export const addDefectToOrder = async (orderId, defectData) => {
 
 export const fetchDefectsForOrder = async (orderId) => {
   try {
-    const response = await axios.get(`${API_URL}/${orderId}/defects`);
+    const response = await axios.get(`/api/orders/${orderId}/defects`);
     return response.data;
   } catch (error) {
     console.error("Error fetching defects:", error);
@@ -62,6 +63,51 @@ export const getDefectById = async (defectId) => {
     return response.data;
   } catch (error) {
     console.error("Error fetching defect details:", error);
+    throw error;
+  }
+};
+
+export const deleteDefect = async (deleteId) => {
+  try {
+    const response = await axios.delete(`${API_URL}/${deleteId}`);
+    toast.success("Defect deleted successfully");
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting defect:", error);
+    toast.error(error.response?.data?.message || "Failed to delete defect. Please try again.");
+    throw error;
+  }
+};
+
+export const fetchDefects = async ({ 
+  page = 1, 
+  limit = 10, 
+  search = "",
+  sortField = "detectedDate",
+  sortOrder = "desc",
+  severity = "",
+  defectType = "",
+  month = ""
+}) => {
+  try {
+    // Build query params
+    const params = new URLSearchParams({
+      page,
+      limit,
+      search,
+      sortField,
+      sortOrder
+    });
+    
+    // Add optional filters if present
+    if (severity) params.append("severity", severity);
+    if (defectType) params.append("defectType", defectType);
+    if (month) params.append("month", month);
+    
+    const response = await axios.get(`${API_URL}?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching defects:", error);
     throw error;
   }
 };

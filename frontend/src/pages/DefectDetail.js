@@ -71,7 +71,7 @@ const DefectDetail = () => {
               <strong className="text-gray-800">Order ID:</strong> {defect.orderId?.orderNo || "N/A"}
             </p>
             <p className="text-gray-700">
-              <strong className="text-gray-800">Type:</strong> {defect.defectType}
+              <strong className="text-gray-800">Type:</strong> {defect.defectType?.name}
             </p>
             <p className="text-gray-700">
               <strong className="text-gray-800">Description:</strong> {defect.description}
@@ -105,13 +105,7 @@ const DefectDetail = () => {
             <h3 className="text-lg font-semibold text-gray-600 mt-6">Additional Information</h3>
             <p className="text-gray-700">
               <strong className="text-gray-800">Month:</strong> {defect.month}
-            </p>
-            <p className="text-gray-700">
-              <strong className="text-gray-800">Style Name:</strong> {defect.styleName}
-            </p>
-            <p className="text-gray-700">
-              <strong className="text-gray-800">Fabric Article:</strong> {defect.fabricArticle}
-            </p>
+            </p>            
             <p className="text-gray-700">
               <strong className="text-gray-800">Line of Production:</strong> {defect.productionLine}
             </p>

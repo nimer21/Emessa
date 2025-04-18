@@ -19,6 +19,8 @@ import OrderDetails from "./components/OrderDetails";
 import WashRecipeForm from "./components/WashRecipeForm";
 import WashRecipeDetails from "./pages/WashRecipeDetails";
 import WashRecipeList from "./pages/WashRecipeList";
+import FabricList from "./pages/FabricList";
+import StyleList from "./pages/StyleList";
 
 function App() {
   const { activeMenu, themeSettings, setThemeSettings, currentColor, currentMode } = useStateContext();
@@ -80,6 +82,8 @@ function App() {
                     <Route path='/wash-recipes' element={<WashRecipeForm />}/>
                     <Route path="/washing" element={<WashRecipeList />} />
                     <Route path="/wash-recipes/:id" element={<WashRecipeDetails />} />      
+                    <Route path="/fabriclist" element={<FabricList />} />
+                    <Route path="/stylelist" element={<StyleList />} />
                 </Routes>
             </div>
             </div>

@@ -8,5 +8,6 @@ router.get("/", washController.getAllWashRecipes);
 router.get("/", washController.getWashRecipeDetails);
 router.post("/", washController.createWashRecipe);
 router.get("/:id", washController.getWashRecipeDetailsById);
+router.delete("/:id", washController.deleteWashRecipe); // DELETE /api/wash-recipes/:id
 
 module.exports = router;
