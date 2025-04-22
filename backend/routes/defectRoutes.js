@@ -26,17 +26,26 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
       cb(null, Date.now() + "-" + file.originalname); // Unique file name
     },
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
   });
   const upload = multer({ storage });
 
 // Route to log a new defect with optional image upload
-router.post("/", upload.single("image"), defectController.createDefect);
+//router.post("/", upload.single("image"), defectController.createDefect);
+router.post("/", upload.array('images', 5), defectController.createDefect);
 
 // Route to update a defect, with optional image upload
-router.put("/:id", upload.single("image"), defectController.updateDefect);
+//router.put("/:id", upload.single("image"), defectController.updateDefect);
+router.put("/:id", upload.array("images", 5), defectController.updateDefect);
 
 // Add the delete route
 router.delete("/:id", defectController.deleteDefect);
 router.patch("/:id/resolve", defectController.resolvedDefect);
+
+// In defectRoutes.js
+router.delete('/images/:id', defectController.deleteDefectImage);
+
+router.get("/:defectId/analytics", defectController.getDefectAnalytics);
+
 
 module.exports = router;

@@ -375,7 +375,8 @@ const OrderList = () => {
               <td className="border p-2">
               {order.fabric?.fabricCompositions?.length > 0
               ? order.fabric.fabricCompositions
-              .map((fc) => `${fc.compositionItem?.abbrPrefix || "Unknown"}${fc.value}`)
+              // .map((fc) => `${fc.compositionItem?.abbrPrefix || "Unknown"}${fc.value}`)
+              .map((fc) => `${fc.compositionItem?.name || "Unknown"}${fc.value}`)
               .join(", ")
               : "No Composition"}
               </td>

@@ -119,7 +119,9 @@ const WashRecipeList = () => {
                     <button onClick={() => navigate(`/wash-recipes/${recipe._id}`)} className="text-blue-600 hover:text-blue-800">
                       <MdContentPasteSearch className="w-5 h-5" />
                     </button>
-                    <button onClick={() => navigate(`/wash-recipes/edit/${recipe._id}`)} className="text-green-600 hover:text-green-800">
+                    <button 
+                    //onClick={() => navigate(`/wash-recipes/edit/${recipe._id}`)} 
+                    className="text-green-600 hover:text-green-800">
                       <MdEdit className="w-5 h-5" />
                     </button>
                     <button onClick={() => openDeleteConfirm(recipe._id)} className="text-red-600 hover:text-red-800">

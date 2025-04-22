@@ -239,16 +239,16 @@ const DefectList = () => {
           <thead>
             <tr className="bg-gray-200">
               <th 
-                onClick={() => handleSort("defectName.name")} 
-                className="cursor-pointer border p-2 text-left"
-              >
-                Defect Name {sort.field === "defectName.name" && (sort.order === "asc" ? "↑" : "↓")}
-              </th>
-              <th 
                 onClick={() => handleSort("orderId.orderNo")} 
                 className="cursor-pointer border p-2 text-left"
               >
                 Order No {sort.field === "orderId.orderNo" && (sort.order === "asc" ? "↑" : "↓")}
+              </th>
+              <th 
+                onClick={() => handleSort("defectName.name")} 
+                className="cursor-pointer border p-2 text-left"
+              >
+                Defect Name {sort.field === "defectName.name" && (sort.order === "asc" ? "↑" : "↓")}
               </th>
               <th 
                 onClick={() => handleSort("defectType.name")} 
@@ -275,10 +275,10 @@ const DefectList = () => {
                 Status {sort.field === "status" && (sort.order === "asc" ? "↑" : "↓")}
               </th>
               <th 
-                onClick={() => handleSort("assignedTo")} 
+                onClick={() => handleSort("defectCount")} 
                 className="cursor-pointer border p-2 text-left"
               >
-                Assigned To {sort.field === "assignedTo" && (sort.order === "asc" ? "↑" : "↓")}
+                Count {sort.field === "defectCount" && (sort.order === "asc" ? "↑" : "↓")}
               </th>
               <th 
                 onClick={() => handleSort("month")} 
@@ -290,7 +290,7 @@ const DefectList = () => {
                 onClick={() => handleSort("productionLine")} 
                 className="cursor-pointer border p-2 text-left"
               >
-                Production Line {sort.field === "productionLine" && (sort.order === "asc" ? "↑" : "↓")}
+                Line {sort.field === "productionLine" && (sort.order === "asc" ? "↑" : "↓")}
               </th>
               <th className="border p-2 text-center">Actions</th>
             </tr>
@@ -308,8 +308,8 @@ const DefectList = () => {
                   key={defect._id} 
                   className="hover:bg-gray-100 transition duration-150 ease-in-out"
                 >
-                  <td className="border p-2">{defect.defectName?.name || "N/A"}</td>
                   <td className="border p-2">{defect.orderId?.orderNo || "N/A"}</td>
+                  <td className="border p-2">{defect.defectName?.name || "N/A"}</td>
                   <td className="border p-2">{defect.defectType?.name || "N/A"}</td>
                   <td className="border p-2">
                     <span
@@ -342,7 +342,7 @@ const DefectList = () => {
                       {defect.status}
                     </span>
                   </td>
-                  <td className="border p-2">{defect.assignedTo || "Unassigned"}</td>
+                  <td className="border p-2">{defect.defectCount || "Unassigned"}</td>
                   <td className="border p-2">{defect.month || "N/A"}</td>
                   <td className="border p-2">{defect.productionLine || "N/A"}</td>
                   <td className="border p-2 text-center">

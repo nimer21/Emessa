@@ -24,9 +24,9 @@ export const fetchDefectsForOrder = async (orderId) => {
   }
 };
 
-export const createDefect = async ({ formDataWithImage }) => {
+export const createDefect = async ({ formDataWithImages }) => {
   try {
-    const response = await axios.post(API_URL, formDataWithImage, {
+    const response = await axios.post(API_URL, formDataWithImages, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -38,18 +38,19 @@ export const createDefect = async ({ formDataWithImage }) => {
   }
 };
 
-export const updateDefect = async ({editDefect, formDataWithImage }) => {
+export const updateDefect = async ({editDefect, formDataWithImages }) => {
   try {
-    //console.log("formDataWithImage=>  ", formDataWithImage); // Debugging line
-    //console.log("editDefect=>  ", editDefect); // Debugging line
+    console.log("formDataWithImage=>  ", formDataWithImages); // Debugging line
+    console.log("editDefect=>  ", editDefect); // Debugging line
     const response = await axios.put(
               `${API_URL}/${editDefect._id}`,
-              formDataWithImage, {
+              formDataWithImages, {
                 headers: {
                   "Content-Type": "multipart/form-data",
                 },
               }
             ); // Update defect if in edit mode
+    console.log("response.data=>  ", response.data); // Debugging line
     return response.data;
   } catch (error) {
     console.error("Error updating defect:", error);
@@ -110,4 +111,9 @@ export const fetchDefects = async ({
     console.error("Error fetching defects:", error);
     throw error;
   }
+};
+
+export const getDefectAnalytics = async (defectId) => {
+  const res = await axios.get(`${API_URL}/${defectId}/analytics`);
+  return res.data;
 };

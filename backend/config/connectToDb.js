@@ -1,9 +1,11 @@
 // config/db.js
 const mongoose = require("mongoose");
 const Section = require("../models/Section");
-const Process = require("../models/Process");
+const Process = require("../models/DefectProcessSewingProblems");
 const DefectType = require("../models/DefectType");
 const DefectName = require("../models/DefectName");
+const DefectPlace = require("../models/DefectPlace");
+const DefectProcessSewingProblems = require("../models/DefectProcessSewingProblems");
 
 const connectDB = async () => {
   try {
@@ -153,6 +155,178 @@ const seedDatabase = async () => {
     // ]);
 
     //console.log("Defect Names seeded:", defectNames);
+
+    //Step 5: Create Places
+    // const places = await DefectPlace.insertMany([
+    //   { name: "WB", description: "Waistband Place" },
+    //   { name: "Front", description: "Front Place" },
+    //   { name: "Side", description: "Side Place" },
+    //   { name: "Leg", description: "Leg Place" },
+    //   { name: "Back", description: "Back Place" },
+    // ]);
+    // console.log("Defect Places seeded:", places);
+
+
+    // Step 6: Create Defect Processes with Defect Place References
+    const processes = await DefectProcessSewingProblems.insertMany([
+      {
+        name: "WB",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da3"),
+        description: "WB - WB Defects",
+      },
+      {
+        name: "Piping of WB",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da3"),
+        description: "WB - Piping of WB Defects",
+      },
+      {
+        name: "Elactic band",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da3"),
+        description: "WB - Elactic band Defects",
+      },
+      {
+        name: "Corner of waist band",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da3"),
+        description: "WB - Corner of waist band Defects",
+      },
+      {
+        name: "WB joint",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da3"),
+        description: "WB - WB joint Defects",
+      },
+      {
+        name: "Button hole",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da3"),
+        description: "WB - Button hole Defects",
+      },
+      {
+        name: "Loops",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da3"),
+        description: "WB - Loops Defects",
+      },
+
+
+      {
+        name: "Different distance facing front pocket",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da4"),
+        description: "Front - Different distance facing front pocket Defects",
+      },
+      {
+        name: "Piping in front pocket",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da4"),
+        description: "Front - piping in front pocket Defects",
+      },
+      {
+        name: "Hemming of front pocket",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da4"),
+        description: "Front - hemming of front pocket Defects",
+      },
+      {
+        name: "Pocket bag cover stitch",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da4"),
+        description: "Front - pocket bag cover stitch Defects",
+      },
+      {
+        name: "Coin pocket",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da4"),
+        description: "Front - coin pocket Defects",
+      },
+      {
+        name: "J stitch",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da4"),
+        description: "Front - J stitch Defects",
+      },
+      {
+        name: "Inside front fly piping",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da4"),
+        description: "Front - inside front fly piping Defects",
+      },
+      {
+        name: "Crotch",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da4"),
+        description: "Front - Crotch Defects",
+      },
+      {
+        name: "Front rise",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da4"),
+        description: "Front - Front rise Defects",
+      },
+
+
+      {
+        name: "Side seam",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da5"),
+        description: "Side - Side seam Defects",
+      },
+      {
+        name: "Side seam bar tack",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da5"),
+        description: "Side - Side seam bar tack Defects",
+      },
+      {
+        name: "Over side seam",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da5"),
+        description: "Side - Over side seam Defects",
+      },
+      {
+        name: "Double Stitch of side seam",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da5"),
+        description: "Side - Over side seam Defects",
+      },
+
+
+
+      {
+        name: "Inseam D/N ( One Needle)",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da6"),
+        description: "Leg - Inseam D/N ( One Needle) Defects",
+      },
+      {
+        name: "Over inseam",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da6"),
+        description: "Leg - Over inseam Defects",
+      },
+      {
+        name: "Hemming",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da6"),
+        description: "Leg - Hemming Defects",
+      },
+      {
+        name: "Different distance between leg",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da6"),
+        description: "Leg - Different distance between leg Defects",
+      },
+
+
+
+      {
+        name: "Hemming back pocket",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da7"),
+        description: "Back - Hemming back pocket Defects",
+      },
+      {
+        name: "Back pocket",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da7"),
+        description: "Back - Back pocket Defects",
+      },
+      {
+        name: "Welt Pocket",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da7"),
+        description: "Back - Welt Pocket Defects",
+      },
+      {
+        name: "Back rise",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da7"),
+        description: "Back - Back rise Defects",
+      },
+      {
+        name: "Back rise",
+        placeId: new mongoose.Types.ObjectId("6804a4fe62c4dd9f2bb82da7"),
+        description: "Back - Back yoke Defects",
+      },
+    ]);
+
+    console.log("Processes seeded:", processes);
 
     console.log("Database seeding completed!");
     mongoose.connection.close();

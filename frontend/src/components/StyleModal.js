@@ -71,7 +71,7 @@ const StyleModal = ({ isOpen, closeModal, editStyle, refreshStyleList }) => {
     e.preventDefault();
     const { customer, brand, styleName, styleNo } = formData;
 
-    if (!customer || !brand || !styleName || !styleNo) {
+    if (!customer || !brand || !styleName) { //|| !styleNo
       toast.error("Please fill all required fields.");
       return;
     }

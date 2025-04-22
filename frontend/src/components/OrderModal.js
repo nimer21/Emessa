@@ -26,7 +26,7 @@ const OrderModal = ({
     season: "",
     orderNo: "",
     orderQty: "",
-    orderDate: new Date("2015-03-25").toLocaleDateString(),
+    orderDate: new Date().toLocaleDateString(),
     deliveryDate: new Date("2015-03-25").toLocaleDateString(),
     style: null,
     styleNo: "",

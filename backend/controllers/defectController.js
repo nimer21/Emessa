@@ -1,14 +1,44 @@
 // controllers/defectController.js
 const Defect = require("../models/Defect");
 const Order = require("../models/Order");
+const fs = require('fs'); // Add this import at the top
+const path = require('path'); // Add this line
 
 // Log a new defect // Create a defect and associate it with an order
 exports.createDefect = async (req, res) => {
   try {
     console.log("Received defect data:", req.body); // Log submitted data for debugging
 
-    const { orderId, defectType, defectName, description, severity, assignedTo, month, productionLine } = req.body;
-    const imagePath = req.file ? req.file.path.replace(/\\/g, "/") : null; // Get image path if uploaded
+    const { orderId, defectType, defectName, description, severity, defectCount, month, productionLine } = req.body;
+    //const imagePath = req.file ? req.file.path.replace(/\\/g, "/") : null; // Get image path if uploaded
+
+    
+// if (req.files && req.files.images) {
+//   req.files.images.forEach(file => {
+//     imagePaths.push(file.path.replace(/\\/g, "/"));
+//   });
+// }
+
+// // For existing images (edit case)
+// const existingImages = req.body.existingImages 
+//   ? JSON.parse(req.body.existingImages) 
+//   : [];
+
+// Process new files
+// Process new uploaded files
+const imagePaths = [];
+if (req.files && req.files.length > 0) {
+  req.files.forEach(file => {
+    imagePaths.push(file.path.replace(/\\/g, "/"));
+    //imagePaths.push(`uploads/${file.filename}`);
+  });
+}
+
+// Process existing images (for edit case)
+const existingImages = req.body.existingImages 
+  ? JSON.parse(req.body.existingImages) 
+  : [];
+
     //console.log("Image path:", imagePath);  // Log the image path for debugging | Image path: uploads\1731320027611-test.jpg
      // Check if an image file was uploaded
      /**
@@ -20,17 +50,27 @@ exports.createDefect = async (req, res) => {
     //   imagePath = req.file.path.replace(/\\/g, "/"); // Convert backslashes to forward slashes
     // }
 
+    // const newDefect = new Defect({
+    //   orderId,
+    //   defectType,
+    //   defectName,
+    //   description,
+    //   severity,
+    //   defectCount,
+    //   detectedDate,
+    //   //image: imagePath, // Save the image path in the database
+    //   images: [...existingImages, ...imagePaths],
+    //   month, // New field
+    //   productionLine, // New field
+    // });
+
+    // Create new defect with images
     const newDefect = new Defect({
-      orderId,
-      defectType,
-      defectName,
-      description,
-      severity,
-      assignedTo,
-      image: imagePath, // Save the image path in the database
-      month, // New field
-      productionLine, // New field
+      ...req.body,
+      images: [...existingImages, ...imagePaths]
+      //images: imagePaths
     });
+
     // Create a new defect
     //const newDefect = new Defect(defectData);
     const savedDefect = await newDefect.save();
@@ -41,7 +81,8 @@ exports.createDefect = async (req, res) => {
     });
 
     // Populate the orderId field with orderNo
-    const populatedDefect = await Defect.findById(savedDefect._id).populate("defectName", "name")
+    const populatedDefect = await Defect.findById(savedDefect._id)
+    .populate("defectName", "name")
     .populate("defectType", "name")
     .populate("orderId", "orderNo");
 
@@ -195,7 +236,15 @@ exports.getDefectById = async (req, res) => {
   //console.log("Fetching defect with ID:", req.params.id);
   try {
     const defect = await Defect.findById(req.params.id)
-    .populate("orderId", "orderNo") // Populate orderId with only orderNo field;
+    //.populate("orderId", "orderNo") // Populate orderId with only orderNo field;
+    .populate({
+      path: "orderId",
+      select: "orderNo",
+      populate: [
+        { path: "style", select: "styleNo" },
+        { path: "fabric", select: "name color" }
+      ]
+    })    
     .populate({
       path: "defectName",
       select: "name"
@@ -211,51 +260,79 @@ exports.getDefectById = async (req, res) => {
     res.status(500).json({ message: "Error fetching defect details", error });
   }
 };
-
+// // Update an existing defect
 exports.updateDefect = async (req, res) => {
   try {
-    //console.log("Received req.params id: ", req.params); // Log submitted data for debugging
-    //console.log("Received defect data: ", req.body); // Log submitted data for debugging
-    const { id } = req.params; // Get defect ID from URL
-    const updates = { ...req.body }; // Get text fields from request body
-    //const { batchId, defectType, description, severity, assignedTo } = req.body;
-
-    // Check if an image file was uploaded
-    if (req.file) {
-      updates.image = req.file.path.replace(/\\/g, "/"); // Save the image path in the updates
+    const { id } = req.params;
+    
+    // Extract relevant data from request
+    const updates = { ...req.body };
+    
+    // Process existing images that should be kept
+    const existingImages = JSON.parse(req.body.existingImages || '[]')
+      .map(filename => `uploads/${filename}`);
+    
+    // Process images that should be permanently deleted
+    const imagesToDelete = JSON.parse(req.body.imagesToDelete || '[]');
+    
+    // Find the existing defect
+    const existingDefect = await Defect.findById(id);
+    if (!existingDefect) {
+      return res.status(404).json({ message: "Defect not found" });
     }
-
-     // Find the defect to check its current order association
-     const existingDefect = await Defect.findById(id);
-     if (!existingDefect) {
-       return res.status(404).json({ message: "Defect not found" });
-     }
-
-    // Find defect by ID and update it with new data
-    const updatedDefect = await Defect.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
-    //console.log("updatedDefect: ", updatedDefect);
-
-    if (!updatedDefect) {
-      return res.status(404).json({ message: "Defect not found after update" });
+    
+    // Delete files that are marked for deletion
+    imagesToDelete.forEach(filename => {
+      const filePath = path.join(__dirname, '../uploads', filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        console.log(`Deleted file: ${filename}`);
+      }
+    });
+    
+    // Process newly uploaded files
+    const newImagePaths = [];
+    if (req.files && req.files.length > 0) {
+      req.files.forEach(file => {
+        newImagePaths.push(`uploads/${file.filename}`);
+      });
     }
-
-    // Remove the defect from the old order's defects array
-    if (existingDefect.orderId.toString() !== updates.orderId) {
+    
+    // Check for order ID change
+    const orderChanged = existingDefect.orderId.toString() !== updates.orderId;
+    
+    // Update the defect with new data and combined image paths
+    const updatedDefect = await Defect.findByIdAndUpdate(
+      id,
+      {
+        ...updates,
+        images: [...existingImages, ...newImagePaths]
+      },
+      { new: true, runValidators: true }
+    );
+    
+    // Handle order association changes if needed
+    if (orderChanged) {
+      // Remove defect from old order
       await Order.findByIdAndUpdate(existingDefect.orderId, {
         $pull: { defects: existingDefect._id },
       });
+      
+      // Add defect to new order
+      await Order.findByIdAndUpdate(updates.orderId, {
+        $push: { defects: updatedDefect._id },
+      });
     }
-    // Add the defect to the new order's defects array
-    await Order.findByIdAndUpdate(updates.orderId, {
-      $push: { defects: updatedDefect._id },
-    });
-
-    const populatedDefect = await Defect.findById(updatedDefect._id).populate("orderId", "orderNo").populate("defectName", "name")
-    .populate("defectType", "name");
-
-    res.status(200).json(populatedDefect); // Send updated defect data back to client
+    
+    // Return populated defect data
+    const populatedDefect = await Defect.findById(updatedDefect._id)
+      .populate("orderId", "orderNo")
+      .populate("defectName", "name")
+      .populate("defectType", "name");
+    
+    res.status(200).json(populatedDefect);
   } catch (error) {
-    console.error("Backend: Error updating defect:", error);
+    console.error("Error updating defect:", error);
     res.status(500).json({ message: "Error updating defect", error });
   }
 };
@@ -266,19 +343,36 @@ exports.deleteDefect = async (req, res) => {
     console.error("deleting Defect id:", id);
 
     // Find the defect by ID and delete it
-    const deletedDefect = await Defect.findByIdAndDelete(id);
+    //const defectToDelete = await Defect.findByIdAndDelete(id);
 
-    if (!deletedDefect) {
+    // Find the defect to delete
+    const defectToDelete = await Defect.findById(id);    
+    if (!defectToDelete) {
       return res.status(404).json({ message: "Defect not found" });
     }
 
-    if (deletedDefect && deletedDefect.orderId) {
-      await Order.findByIdAndUpdate(deletedDefect.orderId, {
-        $pull: { defects: deletedDefect._id },
+    // Delete all associated image files
+    if (defectToDelete.images && defectToDelete.images.length > 0) {
+      defectToDelete.images.forEach(imagePath => {
+        const filename = imagePath.split('/').pop();
+        const filePath = path.join(__dirname, '../uploads', filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
       });
     }
 
-    res.status(200).json({ message: "Defect deleted successfully" });
+    // Remove defect from order's defects array
+    if (defectToDelete && defectToDelete.orderId) {
+      await Order.findByIdAndUpdate(defectToDelete.orderId, {
+        $pull: { defects: defectToDelete._id },
+      });
+    }
+
+    // Delete the defect record
+    await Defect.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Defect and associated images deleted successfully" });
   } catch (error) {
     console.error("Error deleting defect:", error);
     res.status(500).json({ message: "Error deleting defect", error });
@@ -318,3 +412,114 @@ exports.resolvedDefect = async (req, res) => {
     res.status(500).json({ message: "Error resolving defect", error });
   }
 };
+
+// In defectController.js
+exports.deleteDefectImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { imageUrl } = req.body;
+
+    console.log("Frontend requested image deletion:", imageUrl);
+    //Deleting image: /uploads/1745146002911-475869920_3891648604438047_7496538017901830525_n.jpg
+
+    // For now, we just return success - actual deletion happens during form submission
+    // This approach allows for "undo" functionality
+    
+/*
+    // 1. Remove the physical file
+    const filename = imageUrl.split('/').pop();
+    console.log("filename: ", filename);
+    // filename:  1745146002911-475869920_3891648604438047_7496538017901830525_n.jpg
+    
+    const filePath = path.join(__dirname, '../uploads', filename);
+    // filePath:  C:\2024.03.21\Web\2024.10.30_emessa\emessa - Copy\backend\uploads\1745146002911-475869920_3891648604438047_7496538017901830525_n.jpg 
+    console.log("filePath: ", filePath);
+    
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    
+    // 2. Update the defect document to remove the image reference
+    const updatedDefect = await Defect.findByIdAndUpdate(
+      id,
+      { $pull: { images: imageUrl } },
+      { new: true }
+    );
+    
+*/
+    if (!updatedDefect) {
+      return res.status(404).json({ message: "Defect not found" });
+    }
+    
+    res.status(200).json({ message: "Image marked for deletion", imageUrl });
+  } catch (error) {
+    console.error("Error marking image for deletion:", error);
+    res.status(500).json({ message: "Error processing image deletion request", error });
+  }
+};
+
+
+exports.getDefectAnalytics = async (req, res) => {
+  try {
+    const { defectId } = req.params;
+
+    // Get base defect data
+    const baseDefect = await Defect.findById(defectId).populate("defectName");
+    if (!baseDefect) return res.status(404).json({ message: "Defect not found" });
+
+    const similarDefects = await Defect.find({
+      defectName: baseDefect.defectName._id,
+    })
+    .populate("defectType", "name")
+    .populate("orderId", "orderNo style")
+    .sort({ detectedDate: -1 });
+
+    // Group for trend chart (monthly)
+    const trendMap = {};
+    similarDefects.forEach((defect) => {
+      const month = new Date(defect.detectedDate).toLocaleString("default", { month: "short" });
+      trendMap[month] = (trendMap[month] || 0) + 1;
+    });
+
+    const trendData = Object.entries(trendMap).map(([month, count]) => ({ month, count }));
+
+    // Group for severity
+    const severityData = {};
+    similarDefects.forEach((d) => {
+      severityData[d.severity] = (severityData[d.severity] || 0) + 1;
+    });
+
+    const severityArr = Object.entries(severityData).map(([name, value]) => ({ name, value }));
+
+    // Group for location/component
+    const locationData = {};
+    similarDefects.forEach((d) => {
+      const key = d.component || "Unknown";
+      locationData[key] = (locationData[key] || 0) + 1;
+    });
+
+    const locationArr = Object.entries(locationData).map(([location, count]) => ({ location, count }));
+
+    // Format similar defects list
+    const similarFormatted = similarDefects.map((d) => ({
+      //id: d._id,
+      id: d.orderId.orderNo,
+      defectName: baseDefect.defectName.name,
+      status: d.status || "Open",
+      severity: d.severity,
+      component: d.component,
+      date: new Date(d.detectedDate).toLocaleDateString(),
+    }));
+
+    res.json({
+      trendData,
+      severityData: severityArr,
+      locationData: locationArr,
+      similarDefects: similarFormatted,
+    });
+  } catch (err) {
+    console.error("Error in getDefectAnalytics", err);
+    res.status(500).json({ message: "Error loading analytics" });
+  }
+};
+

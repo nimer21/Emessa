@@ -206,7 +206,7 @@ const WashRecipeForm = () => {
     {/* Wash Type */}
     <div>
       <label htmlFor="wash-type" className="block text-sm font-medium text-gray-700 mb-2" style={{ color: currentColor }}>
-        Wash Type
+        Order Type
       </label>
       <select
         id="wash-type"

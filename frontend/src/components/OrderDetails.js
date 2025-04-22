@@ -117,7 +117,7 @@ const OrderDetails = () => {
               Created on {new Date(order.orderDate).toLocaleDateString()}
             </p>
           </div>
-          <div className="flex flex-col items-end">
+          {/* <div className="flex flex-col items-end">
             <span className="text-sm font-medium text-gray-600 mb-2">Production Progress</span>
             <div className="w-64">
               <ProgressBar 
@@ -125,7 +125,7 @@ const OrderDetails = () => {
                 currentStage={order.currentStage || "Production"} 
               />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -255,7 +255,8 @@ const OrderDetails = () => {
                     <p className="font-medium">
                       {order.fabric?.fabricCompositions?.length > 0
                         ? order.fabric.fabricCompositions
-                            .map((fc) => `${fc.compositionItem?.abbrPrefix || ""}${fc.value}`)
+                            // .map((fc) => `${fc.compositionItem?.abbrPrefix || ""}${fc.value}`)
+                            .map((fc) => `${fc.compositionItem?.name || ""} ${fc.value}`)
                             .join(", ")
                         : "No composition data available"}
                     </p>
@@ -337,6 +338,7 @@ const OrderDetails = () => {
                     <thead className="bg-gray-100">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -347,6 +349,7 @@ const OrderDetails = () => {
                       {defects.map((defect) => (
                         <tr key={defect._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">{defect.defectType?.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">{defect.defectCount}</td>
                           <td className="px-6 py-4">{defect.description}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(defect.severity)}`}>
@@ -355,9 +358,9 @@ const OrderDetails = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">{defect.status || "Open"}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {defect.createdAt 
-                              ? new Date(defect.createdAt).toLocaleDateString() 
-                              : new Date().toLocaleDateString()}
+                            {defect.detectedDate 
+                              ? new Date(defect.detectedDate).toLocaleDateString() 
+                              : "N/A"}
                           </td>
                         </tr>
                       ))}
@@ -405,7 +408,7 @@ const OrderDetails = () => {
       </div>
 
       {/* Optimization Suggestions Panel */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 shadow-md mb-6">
+      {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 shadow-md mb-6">
         <h3 className="text-lg font-semibold text-blue-800 mb-3">Order Optimization Insights</h3>
         <ul className="space-y-2">
           <li className="flex items-start">
@@ -433,7 +436,8 @@ const OrderDetails = () => {
             <p className="ml-2 text-blue-700">Defect rate for this fabric type is 3.2% above average. Consider additional QA checkpoints during production.</p>
           </li>
         </ul>
-      </div>
+      </div> */}
+      
     </div>
   );
 };

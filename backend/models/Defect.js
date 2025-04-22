@@ -8,13 +8,18 @@ const DefectSchema = new mongoose.Schema({
   // defectType: { type: String, required: true },
   defectName:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectName" },
   defectType:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectType" },
+
+  defectPlace:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectPlace" },
+  defectProcess:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectProcess" },
+
   description: { type: String },
   severity: { type: String, enum: ["Low", "Medium", "High"], required: true },
   status: { type: String, enum: ["Open", "In Progress", "Resolved"], default: "Open" },
   detectedDate: { type: Date, default: Date.now },
+  defectCount: { type: Number, default: 1 },
   resolvedDate: { type: Date },
-  assignedTo: { type: String }, // Reference to a user (could later use ObjectId if needed)
-  image: { type: String }, // New field to store image path
+  //image: { type: String }, // New field to store image path
+  images: [{ type: String, required: false }], // New field to store image path
   resolution: {
     actionTaken: { type: String },
     verifiedBy: { type: String },
