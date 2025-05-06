@@ -3,7 +3,7 @@ import axios from "../services/api";
 
 const API_URL = "/api/defects";
 
-// Tiger this is not used (Also in the backend server orderController.js => addDefectToOrder)
+// ! Tiger this is not used (Also in the backend server orderController.js => addDefectToOrder)
 export const addDefectToOrder = async (orderId, defectData) => {
   try {
     const response = await axios.post(`${API_URL}/${orderId}/defects`, defectData);
@@ -14,15 +14,6 @@ export const addDefectToOrder = async (orderId, defectData) => {
   }
 };
 
-export const fetchDefectsForOrder = async (orderId) => {
-  try {
-    const response = await axios.get(`/api/orders/${orderId}/defects`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching defects:", error);
-    throw error;
-  }
-};
 
 export const createDefect = async ({ formDataWithImages }) => {
   try {

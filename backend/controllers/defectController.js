@@ -7,9 +7,9 @@ const path = require('path'); // Add this line
 // Log a new defect // Create a defect and associate it with an order
 exports.createDefect = async (req, res) => {
   try {
-    console.log("Received defect data:", req.body); // Log submitted data for debugging
+    //console.log("Received defect data:", req.body); // Log submitted data for debugging
 
-    const { orderId, defectType, defectName, description, severity, defectCount, month, productionLine } = req.body;
+    const { orderId, defectType, defectName, description, severity, defectCount, productionLine } = req.body;
     //const imagePath = req.file ? req.file.path.replace(/\\/g, "/") : null; // Get image path if uploaded
 
     
@@ -103,7 +103,8 @@ exports.getDefects = async (req, res) => {
       sortOrder = "desc",
       severity = "",
       defectType = "",
-      month = "" 
+      //month = "" 
+      //detectedDate = ""
     } = req.query;
     
     // Convert page and limit to numbers
@@ -143,9 +144,10 @@ exports.getDefects = async (req, res) => {
     }
     
     // Add filter by month if provided
-    if (month) {
-      filters.month = month;
-    }
+    // if (detectedDate) {
+    //   filters.detectedDate = new Date(detectedDate).toLocaleString("default", { month: "long" });
+    // }
+    
     
     // Create sort object
     const sort = {};
@@ -167,6 +169,10 @@ exports.getDefects = async (req, res) => {
       })
       .populate({
         path: "defectType",
+        select: "name"
+      })
+      .populate({
+        path: "defectProcess",
         select: "name"
       });
       
@@ -239,7 +245,7 @@ exports.getDefectById = async (req, res) => {
     //.populate("orderId", "orderNo") // Populate orderId with only orderNo field;
     .populate({
       path: "orderId",
-      select: "orderNo",
+      select: "orderNo season",
       populate: [
         { path: "style", select: "styleNo" },
         { path: "fabric", select: "name color" }
@@ -253,6 +259,14 @@ exports.getDefectById = async (req, res) => {
       path: "defectType",
       select: "name"
     })
+    .populate({
+      path: "defectPlace",
+      select: "name"
+    })    
+    .populate({
+      path: "defectProcess",
+      select: "name"
+    })    
     .exec();
     if (!defect) return res.status(404).json({ message: "Defect not found" });
     res.status(200).json(defect);
@@ -328,7 +342,9 @@ exports.updateDefect = async (req, res) => {
     const populatedDefect = await Defect.findById(updatedDefect._id)
       .populate("orderId", "orderNo")
       .populate("defectName", "name")
-      .populate("defectType", "name");
+      .populate("defectType", "name")
+      .populate("defectPlace", "name")
+      .populate("defectProcess", "name");
     
     res.status(200).json(populatedDefect);
   } catch (error) {
@@ -464,13 +480,19 @@ exports.getDefectAnalytics = async (req, res) => {
     const { defectId } = req.params;
 
     // Get base defect data
-    const baseDefect = await Defect.findById(defectId).populate("defectName");
+    const baseDefect = await Defect.findById(defectId).populate("defectName").populate("defectPlace");
     if (!baseDefect) return res.status(404).json({ message: "Defect not found" });
+
+    // Check if defectPlace exists before accessing its _id
+    const defectPlaceId = baseDefect.defectPlace ? baseDefect.defectPlace._id : null;
 
     const similarDefects = await Defect.find({
       defectName: baseDefect.defectName._id,
+      //defectPlace: baseDefect.defectPlace._id,
+      defectPlace: defectPlaceId, // Use the conditional value here
     })
     .populate("defectType", "name")
+    .populate("defectPlace", "name")
     .populate("orderId", "orderNo style")
     .sort({ detectedDate: -1 });
 
@@ -494,7 +516,9 @@ exports.getDefectAnalytics = async (req, res) => {
     // Group for location/component
     const locationData = {};
     similarDefects.forEach((d) => {
-      const key = d.component || "Unknown";
+      //const key = d.defectPlace.name || "Unknown";
+      // Check if d.defectPlace exists before accessing its name
+      const key = d.defectPlace ? d.defectPlace.name : "Unknown";
       locationData[key] = (locationData[key] || 0) + 1;
     });
 

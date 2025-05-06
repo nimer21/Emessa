@@ -276,6 +276,9 @@ const WashRecipeDetails = () => {
       {/* Processes */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-4" style={{ color: currentColor }}>Processes</h2>
+        {processes.length === 0 ? (
+          <p className="text-gray-600">🚫 No processes added !</p>
+        ) : 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {processes.map((process) => (
           <div
@@ -301,6 +304,7 @@ const WashRecipeDetails = () => {
           </div>
         ))}
       </div>
+        }
     </div>
 
     <div className="mb-6">

@@ -5,7 +5,7 @@ import ConfirmationModal from "../components/ConfirmationModal";
 import { toast } from "react-toastify";
 import { deleteOrder, fetchOrders } from "../services/orderService";
 import OrderModal from "../components/OrderModal";
-import ProgressBar from "../components/ProgressBar";
+//import ProgressBar from "../components/ProgressBar";
 import Spinner from "./../components/Spinner";
 import { fetchStyles } from "../services/masterDataService";
 
@@ -16,20 +16,21 @@ import FabricModal from "../components/FabricModal";
 import StyleModal from "../components/StyleModal";
 
 const OrderList = () => {
-  const calculateOverallProgress = () => {
-    const totalProgress = orders.reduce(
-      (sum, order) => sum + order.stageProgress,
-      0
-    );
-    return Math.round(totalProgress / orders.length);
-  };
+  // const calculateOverallProgress = () => {
+  //   const totalProgress = orders.reduce(
+  //     (sum, order) => sum + order.stageProgress,
+  //     0
+  //   );
+  //   return Math.round(totalProgress / orders.length);
+  // };
+
   const [editOrder, setEditOrder] = useState(null); // Track defect to edit
   const { currentColor } = useStateContext();
   // Order Management States
   const [orders, setOrders] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 6,
+    limit: 10,
     totalPages: 1,
   });
   const [sort, setSort] = useState({ field: "orderDate", order: "desc" });
@@ -46,8 +47,6 @@ const OrderList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCearteFabricModalOpen, setIsCearteFabricModalOpen] = useState(false);
   const [isCreateStyleModalOpen, setIsCreateStyleModalOpen] = useState(false);
-
-  const [editStyle, setEditStyle] = useState(null);
 
   const navigate = useNavigate();
 
@@ -225,8 +224,8 @@ const OrderList = () => {
           Create New Fabric
         </button>
 
-         {/* Create Style Button */}
-         <button
+        {/* Create Style Button */}
+        <button
           onClick={openCreateStyleModal}
           className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 transition duration-200 flex-shrink-0"
           style={{ backgroundColor: currentColor }}
@@ -314,7 +313,8 @@ const OrderList = () => {
               className="cursor-pointer border p-2"
             >
               Fabric Composition{" "}
-              {sort.field === "fabricComposition" && (sort.order === "asc" ? "↑" : "↓")}
+              {sort.field === "fabricComposition" &&
+                (sort.order === "asc" ? "↑" : "↓")}
             </th>
             <th
               onClick={() => handleSort("orderDate")}
@@ -354,7 +354,8 @@ const OrderList = () => {
               {sort.field === "currentStage" &&
                 (sort.order === "asc" ? "↑" : "↓")}
             </th> */}
-            <th>Actions</th>{/* New Actions Column */}
+            <th>Actions</th>
+            {/* New Actions Column */}
           </tr>
         </thead>
         <tbody>
@@ -373,12 +374,22 @@ const OrderList = () => {
               <td className="border p-2">{order.articleNo}</td>
               <td className="border p-2">{order.fabric?.name}</td>
               <td className="border p-2">
-              {order.fabric?.fabricCompositions?.length > 0
-              ? order.fabric.fabricCompositions
-              // .map((fc) => `${fc.compositionItem?.abbrPrefix || "Unknown"}${fc.value}`)
-              .map((fc) => `${fc.compositionItem?.name || "Unknown"}${fc.value}`)
-              .join(", ")
-              : "No Composition"}
+                <td className="p-2">
+                  {order.fabric?.fabricCompositions?.length > 0
+                    ? (() => {
+                        const compositionString =
+                          order.fabric.fabricCompositions
+                            .map(
+                              (fc) =>
+                                `${fc.value}%${fc.compositionItem?.name || "Unknown"}`
+                            )
+                            .join(", ");
+                        return compositionString.length > 30
+                          ? compositionString.slice(0, 30) + "..."
+                          : compositionString;
+                      })()
+                    : "No Composition"}
+                </td>
               </td>
               <td className="border p-2">
                 {order?.orderDate
@@ -386,7 +397,7 @@ const OrderList = () => {
                   : "No date selected"}
               </td>
               <td className="border p-2">{order.orderQty}</td>
-              <td className="border p-2">{order.fabric?.code}</td>
+              <td className="border p-2">{order.fabric?.code || "N/A"}</td>
               <td className="border p-2">{order.fabricSupplier?.name}</td>
               {/* Progress Bar */}
               {/* Place ProgressBar inside a td */}
@@ -549,17 +560,19 @@ const OrderList = () => {
           onCancel={closeConfirm}
         />
       )}
-
       {/* Create Fabric Modal */}
       {isCearteFabricModalOpen && (
-        <FabricModal closeModal={closeModal}/>
+        <FabricModal closeModal={closeModal} refreshFabricList={loadStyles} />
         // <FabricCompositionForm />
       )}
-
-      {/* Create Fabric Modal */}
+      {/* Create Style Modal */}
       {isCreateStyleModalOpen && (
-        <StyleModal closeModal={closeModal} isOpen={isCreateStyleModalOpen} editStyle={editStyle}
-        refreshStyleList={loadStyles}/>
+        <StyleModal
+          closeModal={closeModal}
+          isOpen={isCreateStyleModalOpen}
+          //editStyle={editStyle}
+          refreshStyleList={loadStyles}
+        />
         // <FabricCompositionForm />
       )}
     </div>

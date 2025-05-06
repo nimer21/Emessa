@@ -20,10 +20,11 @@ import {
   User,
   Package,
   Loader,
-  XCircle
+  XCircle,
+  RotateCw,
+  RotateCcw
 } from "lucide-react";
 import DefectStatus from "../components/DefectStatus";
-import DefectResolution from "../components/DefectResolution";
 import DefectComments from "../components/DefectComments";
 import DefectAnalytics from "../components/DefectAnalytics";
 
@@ -43,6 +44,7 @@ const DefectDetail = () => {
   const [showMeasurementTool, setShowMeasurementTool] = useState(false);
   const [measurements, setMeasurements] = useState([]);
   const [activeTab, setActiveTab] = useState("details");
+  const [rotationAngle, setRotationAngle] = useState(0);
   
   // Fetch defect data
   useEffect(() => {
@@ -69,13 +71,13 @@ const DefectDetail = () => {
   const nextImage = () => {
     if (!defect?.images?.length) return;
     setCurrentImageIndex((prev) => (prev + 1) % defect.images.length);
-    resetZoom();
+    resetImageSettings();
   };
 
   const prevImage = () => {
     if (!defect?.images?.length) return;
     setCurrentImageIndex((prev) => (prev - 1 + defect.images.length) % defect.images.length);
-    resetZoom();
+    resetImageSettings();
   };
 
   // Zoom functionality
@@ -87,9 +89,20 @@ const DefectDetail = () => {
     setZoomLevel((prev) => Math.max(prev - 0.5, 1));
   };
 
-  const resetZoom = () => {
+  // Reset all image viewing settings
+  const resetImageSettings = () => {
     setZoomLevel(1);
     setPanPosition({ x: 0, y: 0 });
+    setRotationAngle(0);
+  };
+
+  // Rotation functionality
+  const rotateClockwise = () => {
+    setRotationAngle((prev) => (prev + 90) % 360);
+  };
+
+  const rotateCounterclockwise = () => {
+    setRotationAngle((prev) => (prev - 90 + 360) % 360);
   };
 
   // Pan functionality
@@ -131,27 +144,31 @@ const DefectDetail = () => {
     e.preventDefault();
   };
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') {
-        nextImage();
-      } else if (e.key === 'ArrowLeft') {
-        prevImage();
-      } else if (e.key === '+') {
-        zoomIn();
-      } else if (e.key === '-') {
-        zoomOut();
-      } else if (e.key === 'Escape' && isFullscreen) {
-        setIsFullscreen(false);
-      }
-    };
+ // Keyboard navigation
+ useEffect(() => {
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowRight') {
+      nextImage();
+    } else if (e.key === 'ArrowLeft') {
+      prevImage();
+    } else if (e.key === '+') {
+      zoomIn();
+    } else if (e.key === '-') {
+      zoomOut();
+    } else if (e.key === 'r') {
+      rotateClockwise();
+    } else if (e.key === 'R') {
+      rotateCounterclockwise();
+    } else if (e.key === 'Escape' && isFullscreen) {
+      setIsFullscreen(false);
+    }
+  };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isFullscreen, defect]);
+  window.addEventListener('keydown', handleKeyDown);
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
+  };
+}, [isFullscreen, defect]);
   
   // Measurement tool
   const toggleMeasurementTool = () => {
@@ -253,6 +270,7 @@ const DefectDetail = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Fullscreen Image Viewer */}
+      {/* Fullscreen Image Viewer */}
       {isFullscreen && (
         <div className="fixed inset-0 bg-black z-50 flex flex-col">
           <div className="p-4 flex justify-between items-center bg-black bg-opacity-80">
@@ -266,7 +284,13 @@ const DefectDetail = () => {
               <button onClick={zoomOut} className="text-white hover:text-gray-300">
                 <ZoomOut className="h-6 w-6" />
               </button>
-              <button onClick={resetZoom} className="text-white hover:text-gray-300">
+              <button onClick={rotateClockwise} className="text-white hover:text-gray-300">
+                <RotateCw className="h-6 w-6" />
+              </button>
+              <button onClick={rotateCounterclockwise} className="text-white hover:text-gray-300">
+                <RotateCcw className="h-6 w-6" />
+              </button>
+              <button onClick={resetImageSettings} className="text-white hover:text-gray-300">
                 <span className="text-sm">Reset</span>
               </button>
             </div>
@@ -285,11 +309,12 @@ const DefectDetail = () => {
           >
             {defect.images && defect.images.length > 0 && (
               <img
-                src={`http://localhost:5000/${defect.images[currentImageIndex]}`}
+                //src={`http://localhost:5000/${defect.images[currentImageIndex]}`}
+                src={`${process.env.REACT_APP_API_URL}/${defect.images[currentImageIndex]}`}
                 alt={`Defect ${currentImageIndex + 1}`}
                 className="absolute"
                 style={{
-                  transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
+                  transform: `rotate(${rotationAngle}deg) scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
                   transformOrigin: 'center',
                   maxHeight: '100%',
                   maxWidth: '100%',
@@ -447,7 +472,7 @@ const DefectDetail = () => {
               {/* Image Gallery Controls */}
               <div className="bg-gray-50 p-4 border-t border-gray-200">
                 <div className="flex justify-between items-center">
-                  <div className="flex space-x-3">
+                  <div className="flex space-x-2">
                     <button 
                       onClick={zoomIn}
                       className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded"
@@ -463,9 +488,23 @@ const DefectDetail = () => {
                       <ZoomOut className="h-5 w-5" />
                     </button>
                     <button 
-                      onClick={resetZoom}
+                      onClick={rotateClockwise}
+                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded"
+                      title="Rotate Clockwise"
+                    >
+                      <RotateCw className="h-5 w-5" />
+                    </button>
+                    <button 
+                      onClick={rotateCounterclockwise}
+                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded"
+                      title="Rotate Counter-Clockwise"
+                    >
+                      <RotateCcw className="h-5 w-5" />
+                    </button>
+                    <button 
+                      onClick={resetImageSettings}
                       className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded text-sm"
-                      title="Reset Zoom"
+                      title="Reset Image"
                     >
                       Reset
                     </button>
@@ -493,6 +532,13 @@ const DefectDetail = () => {
                     </button>
                   </div>
                 </div>
+
+                {/* Rotation angle indicator */}
+                {rotationAngle !== 0 && (
+                  <div className="mt-2 text-sm text-gray-500 text-center">
+                    Rotation: {rotationAngle}°
+                  </div>
+                )}
                 
                 {/* Thumbnail Gallery */}
                 {defect.images && defect.images.length > 1 && (
@@ -503,11 +549,12 @@ const DefectDetail = () => {
                         className={`h-16 w-16 flex-shrink-0 rounded-md overflow-hidden border-2 ${currentImageIndex === index ? 'border-blue-500' : 'border-transparent'}`}
                         onClick={() => {
                           setCurrentImageIndex(index);
-                          resetZoom();
+                          resetImageSettings();
                         }}
                       >
                         <img 
-                          src={`http://localhost:5000/${image}`}
+                          //src={`http://localhost:5000/${image}`}
+                          src={`${process.env.REACT_APP_API_URL}/${image}`}
                           alt={`Thumbnail ${index + 1}`}
                           className="h-full w-full object-cover"
                         />
@@ -528,8 +575,25 @@ const DefectDetail = () => {
                     </p>
                   </div>
                 )}
+
+                {/* Keyboard shortcuts help */}
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <details className="text-xs text-gray-500">
+                    <summary className="cursor-pointer hover:text-blue-600">Keyboard shortcuts</summary>
+                    <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                      <div>Arrow Left: Previous image</div>
+                      <div>Arrow Right: Next image</div>
+                      <div>+: Zoom in</div>
+                      <div>-: Zoom out</div>
+                      <div>r: Rotate clockwise</div>
+                      <div>R: Rotate counter-clockwise</div>
+                      <div>Esc: Exit fullscreen</div>
+                    </div>
+                  </details>
+                </div>
               </div>
             </div>
+            {/* </div>*******************************####################################************************************ */}
             
             {/* Defect Location Map */}
             <div className="mt-6 bg-white rounded-xl shadow-md p-6">
@@ -541,7 +605,8 @@ const DefectDetail = () => {
               <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
                 {defect.garmentMap ? (
                   <img 
-                    src={`http://localhost:5000/${defect.garmentMap}`}
+                    //src={`http://localhost:5000/${defect.garmentMap}`}
+                    src={`${process.env.REACT_APP_API_URL}/${defect.garmentMap}`}
                     alt="Garment Map"
                     className="w-full h-full object-contain"
                   />
@@ -568,11 +633,11 @@ const DefectDetail = () => {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-3 rounded">
                   <p className="text-sm text-gray-500">Component</p>
-                  <p className="font-medium">{defect.component || "Not specified"}</p>
+                  <p className="font-medium">{defect.defectPlace?.name || "Not specified"}</p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded">
                   <p className="text-sm text-gray-500">Position</p>
-                  <p className="font-medium">{defect.position || "Not specified"}</p>
+                  <p className="font-medium">{defect.defectProcess?.name || "Not specified"}</p>
                 </div>
               </div>
             </div>
@@ -594,19 +659,13 @@ const DefectDetail = () => {
                   onClick={() => setActiveTab('analytics')}
                 >
                   Analytics
-                </button>
-                <button 
-                  className={`px-4 py-3 font-medium ${activeTab === 'resolution' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
-                  onClick={() => setActiveTab('resolution')}
-                >
-                  Resolution
-                </button>
-                <button 
+                </button>                
+                {/* <button 
                   className={`px-4 py-3 font-medium ${activeTab === 'comments' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
                   onClick={() => setActiveTab('comments')}
                 >
                   Comments
-                </button>
+                </button> */}
               </div>
               
               {/* Tab Content */}
@@ -652,6 +711,10 @@ const DefectDetail = () => {
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-500">Order ID:</span>
                             <span className="font-medium">{defect.orderId?.orderNo || "N/A"}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Season:</span>
+                            <span className="font-medium">{defect.orderId?.season || "N/A"}</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-500">Style Number:</span>
@@ -756,32 +819,6 @@ const DefectDetail = () => {
         Defect was initially reported in the system
       </p>
     </div>
-    
-    {defect.assignedAt && (
-      <div className="relative">
-        <div className="absolute -left-6 mt-1 w-2.5 h-2.5 rounded-full bg-purple-600 border-4 border-white"></div>
-        <p className="text-sm text-gray-500">
-          {format(new Date(defect.assignedAt), 'MMM dd, yyyy - h:mm a')}
-        </p>
-        <p className="font-medium">Assigned for Resolution</p>
-        <p className="text-sm text-gray-600 mt-1">
-          Defect assigned to {defect.assignedTo || "team member"}
-        </p>
-      </div>
-    )}
-    
-    {defect.resolvedAt && (
-      <div className="relative">
-        <div className="absolute -left-6 mt-1 w-2.5 h-2.5 rounded-full bg-green-600 border-4 border-white"></div>
-        <p className="text-sm text-gray-500">
-          {format(new Date(defect.resolvedAt), 'MMM dd, yyyy - h:mm a')}
-        </p>
-        <p className="font-medium">Defect Resolved</p>
-        <p className="text-sm text-gray-600 mt-1">
-          Resolution: {defect.resolution || "No details provided"}
-        </p>
-      </div>
-    )}
   </div>
 </div>
                   </div>

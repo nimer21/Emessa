@@ -44,17 +44,6 @@ const StyleList = () => {
     setFilteredStyles(filtered);
   }, [search, styles]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this style?")) return;
-    try {
-      await deleteStyle(id);
-      //toast.success("Style deleted successfully.");
-      loadStyles();
-    } catch (error) {
-      toast.error("Error deleting style.");
-    }
-  };
-
   const openCreateModal = () => {
     setEditStyle(null);
     setShowModal(true);

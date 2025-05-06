@@ -9,23 +9,18 @@ const DefectSchema = new mongoose.Schema({
   defectName:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectName" },
   defectType:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectType" },
 
-  defectPlace:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectPlace" },
-  defectProcess:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectProcess" },
+  defectPlace:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectPlace", required: false },
+  defectProcess:  { type: mongoose.Schema.Types.ObjectId, ref: "DefectProcess", required: false },
 
   description: { type: String },
   severity: { type: String, enum: ["Low", "Medium", "High"], required: true },
   status: { type: String, enum: ["Open", "In Progress", "Resolved"], default: "Open" },
   detectedDate: { type: Date, default: Date.now },
   defectCount: { type: Number, default: 1 },
-  resolvedDate: { type: Date },
+  holesOrOperation: { type: String, enum: ["Holes", "Operation"], required: true },
   //image: { type: String }, // New field to store image path
   images: [{ type: String, required: false }], // New field to store image path
-  resolution: {
-    actionTaken: { type: String },
-    verifiedBy: { type: String },
-    resolutionDate: { type: Date }
-  },
-  month: { type: String, enum: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], required: true },
+  //month: { type: String, enum: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], required: true },
   productionLine: { type: String }, // New field7
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order" }, // Reference to the order
 }, { timestamps: true }); // Adds createdAt and updatedAt fields

@@ -45,6 +45,8 @@ const OrderModal = ({
   const [customers, setCustomers] = useState([]);
   const [brands, setBrands] = useState([]);
   const [filteredBrands, setFilteredBrands] = useState([]);
+  const [filteredStyles, setFilteredStyles] = useState([]);
+
   const [styles, setStyles] = useState([]);
   const [fabricSuppliers, setFabricSuppliers] = useState([]);
   const [fabrics, setFabrics] = useState([]);
@@ -109,6 +111,23 @@ const OrderModal = ({
       }));
     }
   }, [formData.customer, brands]);
+
+  useEffect(() => {
+    if (formData.brand) {
+      const filtered = styles.filter(
+        (s) => s.brand?._id === formData.brand?._id // ✅ Be sure both are ObjectId or strings
+      );
+      setFilteredStyles(filtered);
+  
+      // Optional: clear style if it's not under the selected brand
+      setFormData((prev) => ({
+        ...prev,
+        style: filtered.some((s) => s._id === prev.style?._id) ? prev.style : "",
+      }));
+    }
+  }, [formData.brand, styles]);
+  
+  
 
   // Auto-fill style number when style is selected
     // useEffect(() => {
@@ -320,11 +339,12 @@ return (
             <div>
               <label className="text-sm text-gray-700 font-medium">Select Style</label>
               <select name="style" value={formData.style?._id || ""} onChange={handleChange} className="select-field">
-                <option value="">Select a Style</option>
-                {styles.map((style) => (
-                  <option key={style._id} value={style._id}>{style.name}</option>
-                ))}
-              </select>
+  <option value="">Select a Style</option>
+  {filteredStyles.map((style) => (
+    <option key={style._id} value={style._id}>{style.name}</option>
+  ))}
+</select>
+
             </div>
             <div>
               <label className="text-sm text-gray-700 font-medium">Style No.</label>

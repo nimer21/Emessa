@@ -25,7 +25,7 @@ const WashRecipeList = () => {
       const response = await fetchWashRecipes();
       setWashRecipes(response);
     } catch (error) {
-      toast.error("Failed to fetch wash recipes.");
+      //toast.error("Failed to fetch wash recipes.");
       setIsLoading(false);
     }
   };

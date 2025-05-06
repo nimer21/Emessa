@@ -57,7 +57,7 @@ const DefectAnalytics = ({ defectId, defectData }) => {
             { month: 'Jun', count: 5 },
           ],
           severityData: [
-            { name: 'Critical', value: 8 },
+            //{ name: 'Critical', value: 8 },
             { name: 'High', value: 15 },
             { name: 'Medium', value: 22 },
             { name: 'Low', value: 12 },
@@ -277,7 +277,7 @@ const DefectAnalytics = ({ defectId, defectData }) => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
+                  Order#
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Defect Name

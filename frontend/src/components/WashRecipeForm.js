@@ -140,7 +140,8 @@ const WashRecipeForm = () => {
     }
 
     const invalidStep = steps.find(
-      (step) => !step.stepId || !step.time || !step.temp || !step.liters
+      //(step) => !step.stepId || !step.time || !step.temp || !step.liters
+      (step) => !step.stepId
     );
     if (invalidStep) {
       //alert(`Step sequence ${invalidStep.sequence} is missing a valid step.`);

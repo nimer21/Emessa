@@ -65,3 +65,13 @@ export const getOrderById = async (orderId) => {
     throw error;
   }
 };
+
+export const fetchDefectsForOrder = async (orderId) => {
+  try {
+    const response = await axios.get(`${API_URL}/${orderId}/defects`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching defects:", error);
+    throw error;
+  }
+};

@@ -4,6 +4,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/connectToDb");
 const defectRoutes = require("./routes/defectRoutes");
+const analyticsRoutes = require("./routes/defectAnalyticsRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const sectionRoutes = require("./routes/sectionRoutes");
@@ -33,6 +34,7 @@ connectDB();
 
 // API Routes
 app.use("/api/defects", defectRoutes);
+app.use("/api/analytics", analyticsRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/sections", sectionRoutes);

@@ -10,6 +10,7 @@ import {
     Tooltip,
     Legend,
   } from "chart.js";
+import { Loader } from "lucide-react";
   // Register required components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -25,7 +26,8 @@ const DefectReport = () => {
       const data = [];
 
       trends.forEach((trend) => {
-        labels.push(`${trend._id.month} (${trend._id.severity})`);
+        //labels.push(`${trend.month} (${trend.severity})`);
+        labels.push(`${trend.name}`);
         data.push(trend.total);
       });
 
@@ -46,7 +48,16 @@ const DefectReport = () => {
     loadData();
   }, []);
 
-  if (!chartData) return <p>Loading chart...</p>;
+  //if (!chartData) return <p>Loading chart...</p>;
+
+  if (!chartData) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader className="h-8 w-8 text-blue-600 animate-spin mr-3" />
+        <span className="text-lg text-gray-600">Loading chart...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 bg-white shadow-lg rounded-lg">

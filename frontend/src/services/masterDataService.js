@@ -9,6 +9,11 @@ export const fetchStyles = async () => {
   return response.data;
 };
 
+// export const fetchStylesByBrand = async (brandId) => {
+//   const response = await axios.get(`${API_BASE}/styles?brand=${brandId}`);
+//   return response.data;
+// };
+
 export const fetchCustomers = async () => {
   const response = await axios.get(`${API_BASE}/customers`);
   return response.data;
@@ -111,6 +116,25 @@ export const fetchDefectNames = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching defect names:", error);
+    throw error;
+  }
+};
+
+export const fetchDefectPlaces = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/defect-places`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching defect places:", error);
+    throw error;
+  }
+};
+export const fetchDefectProcesses = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/defect-processes`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching defect processes:", error);
     throw error;
   }
 };

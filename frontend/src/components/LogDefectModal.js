@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import { createDefect, updateDefect } from "../services/defectService";
 import { fetchOrders } from "../services/orderService";
-import { fetchDefectNames, fetchDefectTypes } from "../services/masterDataService";
+import { fetchDefectNames, fetchDefectTypes, fetchDefectPlaces, fetchDefectProcesses } from "../services/masterDataService";
 import { MdDelete, MdRestore } from 'react-icons/md';
 
 const LogDefectModal = ({
@@ -17,17 +17,23 @@ const LogDefectModal = ({
     orderId: editDefect?.orderId?._id || editDefect?.orderId || "",
     defectType: "",
     defectName: "",
+    defectPlace: undefined,
+    defectProcess: undefined,
+    holesOrOperation: "",
     defectCount: 1,
     description: "",
     severity: "Low",
     detectedDate: new Date().toLocaleDateString(),
-    month: "",
+    //month: "",
     productionLine: "",
   });
 
   const [orders, setOrders] = useState([]);
   const [defectTypes, setDefectTypes] = useState([]);
   const [defectNames, setDefectNames] = useState([]);
+  const [filteredDefectNames, setFilteredDefectNames] = useState([]);
+  const [defectPlaces, setDefectPlaces] = useState([]);
+  const [defectProcesses, setDefectProcesses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   
   // Active images that will be displayed in the UI
@@ -44,12 +50,16 @@ const LogDefectModal = ({
     const loadDefects = async () => {
       setIsLoading(true);
       try {
-        const [typeRes, nameRes] = await Promise.all([
+        const [typeRes, nameRes, placeRes, processRes] = await Promise.all([
           fetchDefectTypes(),
-          fetchDefectNames()
+          fetchDefectNames(),
+          fetchDefectPlaces(),
+          fetchDefectProcesses()
         ]);
         setDefectTypes(typeRes);
         setDefectNames(nameRes);
+        setDefectPlaces(placeRes);
+        setDefectProcesses(processRes);
       } catch (error) {
         console.error("Error fetching defects:", error);
         toast.error("Failed to load defect data");
@@ -71,14 +81,48 @@ const LogDefectModal = ({
     };
     loadOrders();
   }, []);
+
+  // Update filtered defect names when defect type changes
+  useEffect(() => {
+    if (formData.defectType) {
+      setIsLoading(true);
+      const filtered = defectNames?.filter(name => 
+        //name.type.toString() === formData.defectType
+        name.type._id === formData.defectType
+      );
+      //const filteredDefectNames = defectNames?.filter(name => name.type._id === formData.defectType);
+      setFilteredDefectNames(filtered);
+      
+      // Reset defect name when type changes
+      setFormData(prev => ({ ...prev, defectName: '' }));
+      setIsLoading(false);
+    } else {
+      setFilteredDefectNames([]);
+    }
+  }, [formData.defectType, defectNames]);
   
+// When loading the defect to edit:
 useEffect(() => {
   if (editDefect) {
+    console.log("editDefect: ", editDefect);
     setFormData({
       ...editDefect,
       orderId: editDefect?.orderId?._id || editDefect?.orderId || "",
       defectType: editDefect?.defectType?._id || editDefect?.defectType || "",
       defectName: editDefect?.defectName?._id || editDefect?.defectName || "",
+      //defectName: defectNames.find(b => b._id === editDefect.defectName?._id) || null,
+      //defectPlace: editDefect?.defectPlace?._id || editDefect?.defectPlace || "",
+      //defectPlace: editDefect?.defectPlace?._id === null ? undefined : editDefect?.defectPlace?._id || undefined
+      defectPlace: editDefect?.defectPlace === null ? undefined : 
+                 (editDefect?.defectPlace?._id || editDefect?.defectPlace || undefined),
+      defectProcess: editDefect?.defectProcess?._id || editDefect?.defectProcess || undefined,
+      holesOrOperation: editDefect?.holesOrOperation || "",
+      defectCount: editDefect?.defectCount || 1,
+      description: editDefect?.description || "",
+      severity: editDefect?.severity || "Low",
+      detectedDate: editDefect?.detectedDate || new Date().toLocaleDateString(),
+      productionLine: editDefect?.productionLine || "",
+
     });
     
     // Set active images for edit mode with proper URLs
@@ -99,12 +143,13 @@ useEffect(() => {
       setActiveImages(imageObjects);
     }
   }
-}, [editDefect]);
+}, [editDefect, defectTypes, defectNames, defectProcesses, defectPlaces]);
 
 
 const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    console.log("Form Data: ", formData);
   };
 
   const handleDateChange = (date) => {
@@ -225,7 +270,8 @@ const handleChange = (e) => {
     }
   };
 
-  const filteredDefectNames = defectNames?.filter(name => name.type._id === formData.defectType);
+  //const filteredDefectNames = defectNames?.filter(name => name.type._id === formData.defectType);
+  const filteredDefectProcesses = defectProcesses?.filter(process => process.place._id === formData.defectPlace);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -276,17 +322,48 @@ const handleChange = (e) => {
               <textarea name="description" value={formData.description} onChange={handleChange} className="w-full p-2 mb-4 border border-gray-300 rounded" />
 
               <label className="block mb-2">Severity:</label>
-              <select name="severity" value={formData.severity} onChange={handleChange} className="w-full p-2 mb-4 border border-gray-300 rounded">
+              <select name="severity" value={formData.severity} required onChange={handleChange} className="w-full p-2 mb-4 border border-gray-300 rounded">
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
+              </select>
+
+              <label className="block mb-2">Sewing Or Holes:</label>
+              <select name="holesOrOperation" value={formData.holesOrOperation} required onChange={handleChange} className="w-full p-2 mb-4 border border-gray-300 rounded">
+                <option value="">Select Sewing Or Holes</option>
+                {["Holes", "Operation"].map((hOrO) => (
+                  <option key={hOrO} value={hOrO}>{hOrO}</option>
+                ))}
+              </select>
+
+              <label className="block mb-2">Defect Place:</label>
+              <select name="defectPlace" value={formData.defectPlace || ""} onChange={handleChange} className="w-full p-2 mb-4 border border-gray-300 rounded">
+                <option value="" disabled hidden>Select Defect Place</option>
+                {defectPlaces?.map((place) => (
+                  <option key={place._id} value={place._id}>{place.name}</option>
+                ))}
+              </select>
+
+
+              <label className="block mb-2">Defect Process:</label>
+              <select name="defectProcess" value={formData.defectProcess || ""} onChange={handleChange} required 
+                className="w-full p-2 mb-4 border border-gray-300 rounded"
+                disabled={!formData.defectPlace || isLoading} >
+                <option value="" disabled>Select Defect Process</option>
+                {filteredDefectProcesses?.length > 0 ? (
+                  filteredDefectProcesses?.map((process) => (
+                    <option key={process._id} value={process._id}>{process.name}</option>
+                  ))
+                ) : (
+                  <option disabled>No options available</option>
+                )}
               </select>
             </div>
 
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2 text-gray-600">Additional Details</h3>
 
-              <label className="block mb-2">Month:</label>
+              {/* <label className="block mb-2">Month:</label>
               <select name="month" value={formData.month} onChange={handleChange} required className="w-full p-2 mb-4 border border-gray-300 rounded">
                 <option value="">Select Month</option>
                 {[
@@ -295,7 +372,7 @@ const handleChange = (e) => {
                 ].map((month) => (
                   <option key={month} value={month}>{month}</option>
                 ))}
-              </select>
+              </select> */}
 
               <label className="block mb-2">Line of Production:</label>
               <select name="productionLine" value={formData.productionLine} onChange={handleChange} className="w-full p-2 mb-4 border border-gray-300 rounded">
@@ -305,7 +382,7 @@ const handleChange = (e) => {
                 ))}
               </select>
 
-              <label className="block mb-2">Investigation Date:</label>
+              <label className="block mb-2">Inspection Date:</label>
               <DatePicker 
                 selected={formData.detectedDate} 
                 onChange={handleDateChange} 

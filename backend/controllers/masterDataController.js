@@ -7,6 +7,8 @@ const FabricComposition = require("../models/order/FabricComposition");
 const Brand = require("../models/order/Brand");
 const DefectType = require("../models/DefectType");
 const DefectName = require("../models/DefectName");
+const DefectPlace = require("../models/DefectPlace");
+const DefectProcess = require("../models/DefectProcess");
 
 exports.getStyles = async (req, res) => {
   try {
@@ -14,7 +16,7 @@ exports.getStyles = async (req, res) => {
   .select("_id name styleNo brand")
   .populate({
     path: "brand",
-    select: "name customer",
+    select: "_id name customer",
     populate: {
       path: "customer",
       select: "name"
@@ -25,6 +27,32 @@ exports.getStyles = async (req, res) => {
     res.status(500).json({ message: "Error fetching styles", error });
   }
 };
+
+// exports.getStyles = async (req, res) => {
+//   try {
+//     const { brand } = req.query;
+//     let query = Style.find();
+    
+//     if (brand) {
+//       query = query.where('brand').equals(brand);
+//     }
+    
+//     const styles = await query
+//       .select("_id name styleNo brand")
+//       .populate({
+//         path: "brand",
+//         select: "name customer",
+//         populate: {
+//           path: "customer",
+//           select: "name"
+//         }
+//       });
+      
+//     res.status(200).json(styles);
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching styles", error });
+//   }
+// };
 
 exports.getCustomers = async (req, res) => {
   try {
@@ -246,10 +274,28 @@ exports.getDefectTypes = async (req, res) => {
 exports.getDefectNames = async (req, res) => {
   try {
     const defectName = await DefectName.find().select("_id name")
-    .populate("type", "_id"); // Populate Supplier Name
+    .populate("type", "_id");
     res.status(200).json(defectName);
   } catch (error) {
     res.status(500).json({ message: "Error fetching defectName", error });
+  }
+};
+
+exports.getDefectPlaces = async (req, res) => {
+  try {
+    const defectPlace = await DefectPlace.find().select("_id name");
+    res.status(200).json(defectPlace);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching defectPlace", error });
+  }
+};
+exports.getDefectProcesses = async (req, res) => {
+  try {
+    const defectProcess = await DefectProcess.find().select("_id name")
+    .populate("place", "_id");
+    res.status(200).json(defectProcess);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching defectProcess", error });
   }
 };
 

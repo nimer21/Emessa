@@ -30,32 +30,32 @@ const FabricList = () => { //{ openEditModal }
     });
 
   useEffect(() => {
+    const loadFabrics = async () => {
+      try {
+        const fabricData = await fetchFabrics({
+            page: pagination.page,
+            limit: pagination.limit,
+            sortField: sort.field,
+            sortOrder: sort.order,
+            search,
+            //supplier: filteredFabrics,
+        });
+        setFabrics(fabricData.data);
+        setFilteredFabrics(fabricData.data);
+        setPagination((prev) => ({
+          ...prev,
+          totalPages: fabricData.pagination.totalPages,
+        }));
+      } catch (error) {
+        console.error("Error loading fabrics:", error);
+        setIsLoading(false);
+      }
+    };
     loadFabrics();
     fetchFabricSuppliers().then(setSuppliers);
     setIsLoading(false);
-  }, [pagination.page, pagination.limit, sort, search]);
+  }, [pagination.page, pagination.limit, sort, search,]);
 
-  const loadFabrics = async () => {
-    try {
-      const fabricData = await fetchFabrics({
-          page: pagination.page,
-          limit: pagination.limit,
-          sortField: sort.field,
-          sortOrder: sort.order,
-          search,
-          //supplier: filteredFabrics,
-      });
-      setFabrics(fabricData.data);
-      setFilteredFabrics(fabricData.data);
-      setPagination((prev) => ({
-        ...prev,
-        totalPages: fabricData.pagination.totalPages,
-      }));
-    } catch (error) {
-      console.error("Error loading fabrics:", error);
-      setIsLoading(false);
-    }
-  };
 
     // Handle Sorting
     const handleSort = (field) => {
