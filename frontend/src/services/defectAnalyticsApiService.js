@@ -59,3 +59,28 @@ export const getDefectRate = async (startDate, endDate) => {
     throw new Error(error.response?.data?.message || 'Failed to fetch defect rate');
   }
 };
+
+
+/**
+ * Get wash recipe defect analytics
+ * @param {Object} filters - Filter parameters
+ * @returns {Promise<Object>} - Wash recipe analytics data
+ */
+export const getWashRecipeDefectAnalytics = async (filters = {}) => {
+  try {
+    // Convert filters to query params
+    const params = new URLSearchParams();
+    
+    if (filters.startDate) params.append('startDate', filters.startDate);
+    if (filters.endDate) params.append('endDate', filters.endDate);
+    if (filters.severity) params.append('severity', filters.severity);
+    if (filters.status) params.append('status', filters.status);
+    if (filters.washType) params.append('washType', filters.washType);
+    
+    const response = await axios.get(`${API_URL}/api/analytics/wash-recipes?${params.toString()}`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching wash recipe defect analytics:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch wash recipe defect analytics');
+  }
+};

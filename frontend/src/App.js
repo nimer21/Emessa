@@ -21,6 +21,7 @@ import WashRecipeList from "./pages/WashRecipeList";
 import FabricList from "./pages/FabricList";
 import StyleList from "./pages/StyleList";
 import FabricCompositionChart from "./components/FabricCompositionChart";
+import WashRecipeDefectDashboard from "./components/WashRecipeDefectDashboard";
 
 function App() {
   const {
@@ -79,7 +80,7 @@ function App() {
                 <Route path="/reports/defects" element={<DefectReport />} />
                 <Route
                   path="/fabricCompositionChart"
-                  element={<FabricCompositionChart />}
+                  element={<WashRecipeDefectDashboard />}
                 />
                 {/* Pages */}
                 <Route path="/login" element={<Login />} />
